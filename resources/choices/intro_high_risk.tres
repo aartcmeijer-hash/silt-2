@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ChoiceOption" load_steps=2 format=3 uid="uid://dkp3e9h6o5swb"]
+
+[ext_resource type="Script" path="res://scripts/resources/choice_option.gd" id="1_choice_option"]
+
+[resource]
+script = ExtResource("1_choice_option")
+label = "High risk, high reward"
+description = "Fortune favors the bold"
+destination_scene = "res://scenes/game/game.tscn"
+choice_id = "intro_high_risk"
+is_enabled = true
+metadata = {
+"risk_level": "high"
+}

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ChoiceScreenData" load_steps=4 format=3 uid="uid://ekq4f0i7p6txc"]
+
+[ext_resource type="Script" path="res://scripts/resources/choice_screen_data.gd" id="1_choice_screen_data"]
+[ext_resource type="Resource" uid="uid://cxp2d8g5n4rwa" path="res://resources/choices/intro_low_risk.tres" id="2_low_risk"]
+[ext_resource type="Resource" uid="uid://dkp3e9h6o5swb" path="res://resources/choices/intro_high_risk.tres" id="3_high_risk"]
+
+[resource]
+script = ExtResource("1_choice_screen_data")
+flavor_text = "The path ahead splits in two. One trail is well-worn and familiar, the other overgrown and uncertain. Which way will you go?"
+title = ""
+choices = [ExtResource("2_low_risk"), ExtResource("3_high_risk")]
+background_color = Color(0.118, 0.129, 0.18, 1)
+screen_id = "intro_choice"

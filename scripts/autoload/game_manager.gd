@@ -5,11 +5,13 @@ extends Node
 signal game_started
 signal game_resumed
 signal game_paused
+signal choice_made(choice_id: String, screen_id: String, metadata: Dictionary)
 
 enum GameState { MENU, PLAYING, PAUSED }
 
 var current_state: GameState = GameState.MENU
 var has_save_data: bool = false
+var choice_history: Array[Dictionary] = []
 
 const SAVE_PATH := "user://savegame.save"
 
@@ -24,8 +26,9 @@ func _check_save_data() -> void:
 
 func start_new_game() -> void:
 	current_state = GameState.PLAYING
+	choice_history.clear()
 	game_started.emit()
-	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/game/intro_choice.tscn")
 
 
 func continue_game() -> void:
@@ -56,4 +59,30 @@ func save_game() -> void:
 
 func load_game() -> Dictionary:
 	# TODO: Implement load system
+	return {}
+
+
+func record_choice(choice_id: String, screen_id: String, metadata: Dictionary = {}) -> void:
+	var choice_record := {
+		"choice_id": choice_id,
+		"screen_id": screen_id,
+		"metadata": metadata,
+		"timestamp": Time.get_ticks_msec()
+	}
+	choice_history.append(choice_record)
+	choice_made.emit(choice_id, screen_id, metadata)
+
+
+func get_choice_history() -> Array[Dictionary]:
+	return choice_history.duplicate()
+
+
+func has_made_choice(choice_id: String) -> bool:
+	return choice_history.any(func(record): return record.choice_id == choice_id)
+
+
+func get_choice_metadata(choice_id: String) -> Dictionary:
+	for record in choice_history:
+		if record.choice_id == choice_id:
+			return record.metadata
 	return {}

@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://bxp2c7f8m3qvd"]
+
+[node name="ChoiceButton" type="Button"]
+custom_minimum_size = Vector2(300, 50)
+theme_override_font_sizes/font_size = 24
