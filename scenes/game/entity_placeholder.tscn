@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://ckris43k25bn6"]
+
+[ext_resource type="Script" path="res://scripts/game/entity_placeholder.gd" id="1_entity"]
+
+[node name="EntityPlaceholder" type="Node2D"]
+script = ExtResource("1_entity")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -12.0
+offset_top = -20.0
+offset_right = 12.0
+offset_bottom = 4.0
+color = Color(0.4, 0.6, 1, 1)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -32.0
+offset_right = 20.0
+offset_bottom = -18.0
+theme_override_font_sizes/font_size = 10
+text = "Entity"
+horizontal_alignment = 1

@@ -6,7 +6,7 @@
 script = ExtResource("1_choice_option")
 label = "High risk, high reward"
 description = "Fortune favors the bold"
-destination_scene = "res://scenes/game/game.tscn"
+destination_scene = "res://scenes/game/tactical_game_screen.tscn"
 choice_id = "intro_high_risk"
 is_enabled = true
 metadata = {

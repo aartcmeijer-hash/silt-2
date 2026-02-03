@@ -1,0 +1,79 @@
+[gd_scene load_steps=4 format=3 uid="uid://dixwuw7btbhtt"]
+
+[ext_resource type="Script" path="res://scripts/game/tactical_game_screen.gd" id="1_tactical"]
+[ext_resource type="PackedScene" uid="uid://c7isometricgrid" path="res://scenes/game/isometric_grid.tscn" id="2_grid"]
+[ext_resource type="PackedScene" uid="uid://ctacticalui" path="res://scenes/game/tactical_ui.tscn" id="3_ui"]
+
+[node name="TacticalGameScreen" type="Node2D"]
+script = ExtResource("1_tactical")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.118, 0.129, 0.18, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+
+[node name="IsometricGrid" parent="." instance=ExtResource("2_grid")]
+position = Vector2(960, 380)
+
+[node name="EntityContainer" type="Node2D" parent="IsometricGrid"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TacticalUI" parent="CanvasLayer" instance=ExtResource("3_ui")]
+
+[node name="PauseMenu" type="Control" parent="CanvasLayer"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/PauseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PauseMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Resume"
+
+[node name="MainMenuButton" type="Button" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Main Menu"
+
+[connection signal="pressed" from="CanvasLayer/PauseMenu/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="CanvasLayer/PauseMenu/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]

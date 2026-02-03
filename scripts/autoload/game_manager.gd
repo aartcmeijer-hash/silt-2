@@ -39,7 +39,7 @@ func continue_game() -> void:
 	current_state = GameState.PLAYING
 	game_resumed.emit()
 	# TODO: Load save data
-	get_tree().change_scene_to_file("res://scenes/game/game.tscn")
+	get_tree().change_scene_to_file("res://scenes/game/tactical_game_screen.tscn")
 
 
 func return_to_menu() -> void:
