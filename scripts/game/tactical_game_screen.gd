@@ -16,6 +16,7 @@ var entities: Dictionary = {}
 var is_paused: bool = false
 
 # Camera rotation state
+var camera_pivot: Node3D
 var current_angle: float = 0.0
 var is_rotating: bool = false
 var rotation_tween: Tween = null
@@ -32,12 +33,6 @@ func _ready() -> void:
 	pause_menu.hide()
 	_spawn_initial_entities()
 	_update_ui()
-
-
-func _process(_delta: float) -> void:
-	# Keep camera looking at grid center during rotation
-	if is_rotating and camera:
-		camera.look_at(Vector3.ZERO, Vector3.UP)
 
 
 func _input(event: InputEvent) -> void:
@@ -77,38 +72,35 @@ func _spawn_entity(id: String, grid_pos: Vector2i, type: EntityPlaceholder.Entit
 
 func _setup_camera() -> void:
 	if camera:
+		# Create pivot node at grid center
+		camera_pivot = Node3D.new()
+		camera_pivot.name = "CameraPivot"
+		add_child(camera_pivot)
+		camera_pivot.position = Vector3.ZERO
+
+		# Reparent camera to pivot
+		var old_parent = camera.get_parent()
+		old_parent.remove_child(camera)
+		camera_pivot.add_child(camera)
+
+		# Configure camera
 		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		camera.size = 400.0
 		camera.far = 1500.0
 
-		# Position camera for 30° isometric view
-		var grid_center := Vector3.ZERO
+		# Position camera relative to pivot for 30° isometric view
 		var camera_distance := 1000.0
 		var camera_angle := 30.0  # degrees from horizontal
 		var camera_height := camera_distance * tan(deg_to_rad(camera_angle))  # ~577
 
 		camera.position = Vector3(0, camera_height, camera_distance)
-		camera.look_at(grid_center, Vector3.UP)
+		camera.look_at(Vector3.ZERO, Vector3.UP)
 
 
 func rotate_camera(delta_angle: float) -> void:
 	is_rotating = true
 
 	var target_angle := fmod(current_angle + delta_angle + 360, 360)
-	var target_radians := deg_to_rad(target_angle)
-
-	# Calculate new camera position orbiting around grid center
-	var grid_center := Vector3.ZERO
-	var camera_distance := 1000.0
-	var camera_angle_deg := 30.0
-	var camera_height := camera_distance * tan(deg_to_rad(camera_angle_deg))
-
-	# Orbit position using trigonometry (XZ plane)
-	var target_position := Vector3(
-		sin(target_radians) * camera_distance,
-		camera_height,
-		cos(target_radians) * camera_distance
-	)
 
 	# Kill existing tween if rotating again
 	if rotation_tween:
@@ -118,8 +110,8 @@ func rotate_camera(delta_angle: float) -> void:
 	rotation_tween.set_ease(Tween.EASE_IN_OUT)
 	rotation_tween.set_trans(Tween.TRANS_CUBIC)
 
-	# Tween camera position to orbit around grid
-	rotation_tween.tween_property(camera, "position", target_position, 0.25)
+	# Rotate the pivot (which orbits the camera around the grid)
+	rotation_tween.tween_property(camera_pivot, "rotation_degrees:y", target_angle, 0.25)
 	rotation_tween.finished.connect(_on_rotation_complete)
 
 	current_angle = target_angle
