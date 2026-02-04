@@ -15,6 +15,11 @@ var turn_state: TurnState
 var entities: Dictionary = {}
 var is_paused: bool = false
 
+# Camera rotation state
+var current_angle: float = 0.0
+var is_rotating: bool = false
+var rotation_tween: Tween = null
+
 
 func _ready() -> void:
 	turn_state = TurnState.new()
@@ -30,7 +35,17 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	# Block all input during camera rotation
+	if is_rotating:
+		return
+
+	if event.is_action_pressed("rotate_left"):
+		rotate_camera(-90)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("rotate_right"):
+		rotate_camera(90)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
 		toggle_pause()
 		get_viewport().set_input_as_handled()
 
@@ -62,6 +77,29 @@ func _setup_camera() -> void:
 		# Position camera for isometric view
 		camera.position = Vector3(0, 300, 300)
 		camera.look_at(Vector3.ZERO, Vector3.UP)
+
+
+func rotate_camera(delta_angle: float) -> void:
+	is_rotating = true
+
+	var target_angle := fmod(current_angle + delta_angle + 360, 360)
+
+	# Kill existing tween if rotating again
+	if rotation_tween:
+		rotation_tween.kill()
+
+	rotation_tween = create_tween()
+	rotation_tween.set_ease(Tween.EASE_IN_OUT)
+	rotation_tween.set_trans(Tween.TRANS_CUBIC)
+	rotation_tween.tween_property(camera, "rotation_degrees:y", target_angle, 0.25)
+	rotation_tween.finished.connect(_on_rotation_complete)
+
+	current_angle = target_angle
+
+
+func _on_rotation_complete() -> void:
+	is_rotating = false
+	rotation_tween = null
 
 
 func _on_monster_turn_pressed() -> void:
