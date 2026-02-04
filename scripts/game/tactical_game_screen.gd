@@ -89,6 +89,20 @@ func rotate_camera(delta_angle: float) -> void:
 	is_rotating = true
 
 	var target_angle := fmod(current_angle + delta_angle + 360, 360)
+	var target_radians := deg_to_rad(target_angle)
+
+	# Calculate new camera position orbiting around grid center
+	var grid_center := Vector3.ZERO
+	var camera_distance := 1000.0
+	var camera_angle := 30.0
+	var camera_height := camera_distance * tan(deg_to_rad(camera_angle))
+
+	# Orbit position using trigonometry (XZ plane)
+	var target_position := Vector3(
+		sin(target_radians) * camera_distance,
+		camera_height,
+		cos(target_radians) * camera_distance
+	)
 
 	# Kill existing tween if rotating again
 	if rotation_tween:
@@ -97,7 +111,15 @@ func rotate_camera(delta_angle: float) -> void:
 	rotation_tween = create_tween()
 	rotation_tween.set_ease(Tween.EASE_IN_OUT)
 	rotation_tween.set_trans(Tween.TRANS_CUBIC)
-	rotation_tween.tween_property(camera, "rotation_degrees:y", target_angle, 0.25)
+	rotation_tween.set_parallel(true)
+
+	# Tween camera position to orbit around grid
+	rotation_tween.tween_property(camera, "position", target_position, 0.25)
+
+	# Tween camera to look at grid center
+	rotation_tween.chain()
+	rotation_tween.tween_callback(func(): camera.look_at(grid_center, Vector3.UP))
+
 	rotation_tween.finished.connect(_on_rotation_complete)
 
 	current_angle = target_angle
