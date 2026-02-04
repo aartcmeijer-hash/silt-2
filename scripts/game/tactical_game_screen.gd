@@ -1,11 +1,12 @@
-extends Node2D
+extends Node3D
 ## Main tactical game screen controller.
 ## Manages the isometric grid, entities, and turn-based gameplay.
 
 const ENTITY_PLACEHOLDER_SCENE := preload("res://scenes/game/entity_placeholder.tscn")
 
+@onready var camera: Camera3D = $Camera3D
 @onready var grid: IsometricGrid = $IsometricGrid
-@onready var entity_container: Node2D = $IsometricGrid/EntityContainer
+@onready var entity_container: Node3D = $IsometricGrid/EntityContainer
 @onready var tactical_ui: Control = $CanvasLayer/TacticalUI
 @onready var pause_menu: Control = $CanvasLayer/PauseMenu
 @onready var resume_button: Button = $CanvasLayer/PauseMenu/VBoxContainer/ResumeButton
@@ -22,6 +23,7 @@ func _ready() -> void:
 	tactical_ui.monster_turn_pressed.connect(_on_monster_turn_pressed)
 	tactical_ui.end_turn_pressed.connect(_on_end_turn_pressed)
 
+	_setup_camera()
 	pause_menu.hide()
 	_spawn_initial_entities()
 	_update_ui()
@@ -45,11 +47,21 @@ func _spawn_initial_entities() -> void:
 
 
 func _spawn_entity(id: String, grid_pos: Vector2i, type: EntityPlaceholder.EntityType, label: String, color: Color) -> void:
-	var entity: Node2D = ENTITY_PLACEHOLDER_SCENE.instantiate()
+	var entity: Node3D = ENTITY_PLACEHOLDER_SCENE.instantiate()
 	entity_container.add_child(entity)
 	entity.setup(id, type, label, color)
 	entity.position = grid.grid_to_world(grid_pos.x, grid_pos.y)
 	entities[id] = entity
+
+
+func _setup_camera() -> void:
+	if camera:
+		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+		camera.size = 400.0
+		camera.far = 1000.0
+		# Position camera for isometric view
+		camera.position = Vector3(0, 300, 300)
+		camera.look_at(Vector3.ZERO, Vector3.UP)
 
 
 func _on_monster_turn_pressed() -> void:
