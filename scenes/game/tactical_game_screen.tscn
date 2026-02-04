@@ -13,6 +13,11 @@ projection = 1
 size = 400.0
 far = 1000.0
 
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 500, 500)
+light_energy = 1.0
+shadow_enabled = true
+
 [node name="IsometricGrid" parent="." instance=ExtResource("2_grid")]
 
 [node name="EntityContainer" type="Node3D" parent="IsometricGrid"]
