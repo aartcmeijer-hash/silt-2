@@ -73,10 +73,16 @@ func _setup_camera() -> void:
 	if camera:
 		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		camera.size = 400.0
-		camera.far = 1000.0
-		# Position camera for isometric view
-		camera.position = Vector3(0, 300, 300)
-		camera.look_at(Vector3.ZERO, Vector3.UP)
+		camera.far = 1500.0
+
+		# Position camera for 30° isometric view
+		var grid_center := Vector3.ZERO
+		var camera_distance := 1000.0
+		var camera_angle := 30.0  # degrees from horizontal
+		var camera_height := camera_distance * tan(deg_to_rad(camera_angle))  # ~577
+
+		camera.position = Vector3(0, camera_height, camera_distance)
+		camera.look_at(grid_center, Vector3.UP)
 
 
 func rotate_camera(delta_angle: float) -> void:
