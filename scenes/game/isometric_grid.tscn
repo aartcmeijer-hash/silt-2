@@ -1,6 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://dsavo3ykrbovn"]
+[gd_scene load_steps=3 format=3 uid="uid://dsavo3ykrbovn"]
 
 [ext_resource type="Script" path="res://scripts/game/isometric_grid.gd" id="1_grid"]
+[ext_resource type="MeshLibrary" uid="uid://btcq4eaj5cru0" path="res://resources/mesh_libraries/grid_tiles.tres" id="2_mesh_library"]
 
-[node name="IsometricGrid" type="Node2D"]
+[node name="IsometricGrid" type="Node3D"]
 script = ExtResource("1_grid")
+
+[node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource("2_mesh_library")
+cell_size = Vector3(32, 32, 32)
+cell_center_y = false
