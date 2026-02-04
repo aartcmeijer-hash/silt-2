@@ -9,31 +9,32 @@ extends Node3D
 @onready var grid_map: GridMap = $GridMap
 
 
+func _get_grid_offset() -> Vector2i:
+	return Vector2i(-int(floor(grid_width / 2.0)), -int(floor(grid_height / 2.0)))
+
+
 func _ready() -> void:
 	_populate_grid()
 
 
 func _populate_grid() -> void:
 	# Center grid at origin by offsetting
-	var offset_x := -grid_width / 2
-	var offset_z := -grid_height / 2
+	var offset := _get_grid_offset()
 
 	for x in range(grid_width):
 		for z in range(grid_height):
-			grid_map.set_cell_item(Vector3i(x + offset_x, 0, z + offset_z), 0)
+			grid_map.set_cell_item(Vector3i(x + offset.x, 0, z + offset.y), 0)
 
 
 func grid_to_world(grid_x: int, grid_y: int) -> Vector3:
-	var offset_x := -grid_width / 2
-	var offset_z := -grid_height / 2
-	return Vector3((grid_x + offset_x) * tile_size, 0, (grid_y + offset_z) * tile_size)
+	var offset := _get_grid_offset()
+	return Vector3((grid_x + offset.x) * tile_size, 0, (grid_y + offset.y) * tile_size)
 
 
 func world_to_grid(world_pos: Vector3) -> Vector2i:
-	var offset_x := -grid_width / 2
-	var offset_z := -grid_height / 2
-	var grid_x := int(round(world_pos.x / tile_size)) - offset_x
-	var grid_z := int(round(world_pos.z / tile_size)) - offset_z
+	var offset := _get_grid_offset()
+	var grid_x := int(round(world_pos.x / tile_size)) - offset.x
+	var grid_z := int(round(world_pos.z / tile_size)) - offset.y
 	return Vector2i(grid_x, grid_z)
 
 
