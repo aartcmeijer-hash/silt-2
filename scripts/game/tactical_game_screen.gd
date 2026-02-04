@@ -100,7 +100,8 @@ func _setup_camera() -> void:
 func rotate_camera(delta_angle: float) -> void:
 	is_rotating = true
 
-	var target_angle := fmod(current_angle + delta_angle + 360, 360)
+	# Don't wrap angle - let it accumulate to avoid wrong-direction tweening
+	current_angle += delta_angle
 
 	# Kill existing tween if rotating again
 	if rotation_tween:
@@ -111,10 +112,11 @@ func rotate_camera(delta_angle: float) -> void:
 	rotation_tween.set_trans(Tween.TRANS_CUBIC)
 
 	# Rotate the pivot (which orbits the camera around the grid)
-	rotation_tween.tween_property(camera_pivot, "rotation_degrees:y", target_angle, 0.25)
+	rotation_tween.tween_property(camera_pivot, "rotation_degrees:y", current_angle, 0.25)
 	rotation_tween.finished.connect(_on_rotation_complete)
 
-	current_angle = target_angle
+	# Note: current_angle can exceed 360 or go negative - that's okay!
+	# Godot handles it correctly and we always rotate in the correct direction
 
 
 func _on_rotation_complete() -> void:
