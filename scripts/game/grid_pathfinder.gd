@@ -50,6 +50,9 @@ func _connect_neighbors(x: int, y: int) -> void:
 
 
 func find_path(from: Vector2i, to: Vector2i, max_distance: int = -1) -> Array[Vector2i]:
+	if not _is_valid_cell(from.x, from.y) or not _is_valid_cell(to.x, to.y):
+		return []
+
 	var from_id := _get_point_id(from.x, from.y)
 	var to_id := _get_point_id(to.x, to.y)
 
