@@ -95,7 +95,7 @@ func _displace_survivor(survivor: EntityPlaceholder, monster: EntityPlaceholder)
 	]
 
 	# Try perpendicular spaces first
-	for perp_dir in perp_dirs:
+	for perp_dir: Vector2i in perp_dirs:
 		var new_pos := survivor_pos + perp_dir
 		if _is_valid_and_empty(new_pos):
 			_move_entity_to(survivor, new_pos)
