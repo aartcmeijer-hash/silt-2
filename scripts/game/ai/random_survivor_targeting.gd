@@ -7,4 +7,4 @@ func pick_target(monster_id: String, monsters: Dictionary, survivors: Dictionary
 		return ""
 
 	var survivor_ids := survivors.keys()
-	return survivor_ids[randi() % survivor_ids.size()]
+	return survivor_ids[randi_range(0, survivor_ids.size() - 1)]
