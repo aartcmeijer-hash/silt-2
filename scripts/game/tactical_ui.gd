@@ -32,3 +32,8 @@ func _on_monster_turn_pressed() -> void:
 
 func _on_end_turn_pressed() -> void:
 	end_turn_pressed.emit()
+
+
+func set_disabled(disabled: bool) -> void:
+	monster_turn_btn.disabled = disabled
+	end_turn_btn.disabled = disabled
