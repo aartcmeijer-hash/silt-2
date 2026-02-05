@@ -39,7 +39,7 @@ func _execute_monster_action(monster: EntityPlaceholder, target_id: String) -> v
 	if not entities.has(target_id):
 		return
 
-	var target := entities[target_id] as EntityPlaceholder
+	var target: EntityPlaceholder = entities[target_id]
 	var monster_grid_pos := grid.world_to_grid(monster.global_position)
 	var target_grid_pos := grid.world_to_grid(target.global_position)
 
@@ -72,7 +72,7 @@ func _animate_movement(monster: EntityPlaceholder, path: Array[Vector2i]) -> voi
 func _handle_displacement_at(grid_pos: Vector2i, moving_monster: EntityPlaceholder) -> void:
 	# Check if any survivor is at this position
 	for entity_id in entities:
-		var entity := entities[entity_id] as EntityPlaceholder
+		var entity: EntityPlaceholder = entities[entity_id]
 		if entity.entity_type != EntityPlaceholder.EntityType.SURVIVOR:
 			continue
 
@@ -114,7 +114,7 @@ func _is_valid_and_empty(grid_pos: Vector2i) -> bool:
 
 	# Check if no entity occupies this position
 	for entity_id in entities:
-		var entity := entities[entity_id] as EntityPlaceholder
+		var entity: EntityPlaceholder = entities[entity_id]
 		var entity_grid_pos := grid.world_to_grid(entity.global_position)
 		if entity_grid_pos == grid_pos:
 			return false
@@ -130,7 +130,7 @@ func _move_entity_to(entity: EntityPlaceholder, grid_pos: Vector2i) -> void:
 func _get_monsters() -> Dictionary:
 	var monsters := {}
 	for entity_id in entities:
-		var entity := entities[entity_id] as EntityPlaceholder
+		var entity: EntityPlaceholder = entities[entity_id]
 		if entity.entity_type == EntityPlaceholder.EntityType.MONSTER:
 			monsters[entity_id] = entity
 	return monsters
@@ -139,7 +139,7 @@ func _get_monsters() -> Dictionary:
 func _get_survivors() -> Dictionary:
 	var survivors := {}
 	for entity_id in entities:
-		var entity := entities[entity_id] as EntityPlaceholder
+		var entity: EntityPlaceholder = entities[entity_id]
 		if entity.entity_type == EntityPlaceholder.EntityType.SURVIVOR:
 			survivors[entity_id] = entity
 	return survivors
