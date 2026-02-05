@@ -12,6 +12,7 @@ const ENTITY_PLACEHOLDER_SCENE := preload("res://scenes/game/entity_placeholder.
 @onready var resume_button: Button = $CanvasLayer/PauseMenu/VBoxContainer/ResumeButton
 
 var turn_state: TurnState
+var monster_ai: MonsterAIController
 var entities: Dictionary = {}
 var is_paused: bool = false
 
@@ -25,6 +26,10 @@ var rotation_tween: Tween = null
 func _ready() -> void:
 	turn_state = TurnState.new()
 	turn_state.turn_changed.connect(_on_turn_changed)
+
+	monster_ai = MonsterAIController.new(grid, entities)
+	add_child(monster_ai)
+	monster_ai.turn_completed.connect(_on_monster_ai_completed)
 
 	tactical_ui.monster_turn_pressed.connect(_on_monster_turn_pressed)
 	tactical_ui.end_turn_pressed.connect(_on_end_turn_pressed)
@@ -126,6 +131,13 @@ func _on_rotation_complete() -> void:
 
 func _on_monster_turn_pressed() -> void:
 	turn_state.set_turn(TurnState.Turn.MONSTER)
+	tactical_ui.set_disabled(true)
+	await monster_ai.execute_monster_turn()
+
+
+func _on_monster_ai_completed() -> void:
+	tactical_ui.set_disabled(false)
+	turn_state.set_turn(TurnState.Turn.PLAYER)
 
 
 func _on_end_turn_pressed() -> void:
