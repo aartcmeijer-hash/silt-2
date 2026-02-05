@@ -22,11 +22,11 @@ func _init(grid_ref: IsometricGrid, entities_ref: Dictionary) -> void:
 
 
 func execute_monster_turn() -> void:
-	var monsters := _get_monsters()
-	var survivors := _get_survivors()
+	var monsters: Dictionary = _get_monsters()
+	var survivors: Dictionary = _get_survivors()
 
 	for monster_id in monsters:
-		var target_id := targeting_strategy.pick_target(monster_id, monsters, survivors)
+		var target_id: String = targeting_strategy.pick_target(monster_id, monsters, survivors)
 		if target_id.is_empty():
 			continue
 
@@ -40,11 +40,11 @@ func _execute_monster_action(monster: EntityPlaceholder, target_id: String) -> v
 		return
 
 	var target: EntityPlaceholder = entities[target_id]
-	var monster_grid_pos := grid.world_to_grid(monster.global_position)
-	var target_grid_pos := grid.world_to_grid(target.global_position)
+	var monster_grid_pos: Vector2i = grid.world_to_grid(monster.global_position)
+	var target_grid_pos: Vector2i = grid.world_to_grid(target.global_position)
 
 	# Find path (up to MAX_MOVE_DISTANCE spaces)
-	var path := pathfinder.find_path(monster_grid_pos, target_grid_pos, MAX_MOVE_DISTANCE)
+	var path: Array[Vector2i] = pathfinder.find_path(monster_grid_pos, target_grid_pos, MAX_MOVE_DISTANCE)
 
 	if path.size() <= 1:
 		# No movement possible
@@ -63,8 +63,8 @@ func _animate_movement(monster: EntityPlaceholder, path: Array[Vector2i]) -> voi
 		_handle_displacement_at(grid_pos, monster)
 
 		# Tween to next position
-		var world_pos := grid.grid_to_world(grid_pos.x, grid_pos.y)
-		var tween := create_tween()
+		var world_pos: Vector3 = grid.grid_to_world(grid_pos.x, grid_pos.y)
+		var tween: Tween = create_tween()
 		tween.tween_property(monster, "global_position", world_pos, MOVE_ANIMATION_DURATION)
 		await tween.finished
 
@@ -76,20 +76,20 @@ func _handle_displacement_at(grid_pos: Vector2i, moving_monster: EntityPlacehold
 		if entity.entity_type != EntityPlaceholder.EntityType.SURVIVOR:
 			continue
 
-		var entity_grid_pos := grid.world_to_grid(entity.global_position)
+		var entity_grid_pos: Vector2i = grid.world_to_grid(entity.global_position)
 		if entity_grid_pos == grid_pos:
 			_displace_survivor(entity, moving_monster)
 
 
 func _displace_survivor(survivor: EntityPlaceholder, monster: EntityPlaceholder) -> void:
-	var survivor_pos := grid.world_to_grid(survivor.global_position)
-	var monster_pos := grid.world_to_grid(monster.global_position)
+	var survivor_pos: Vector2i = grid.world_to_grid(survivor.global_position)
+	var monster_pos: Vector2i = grid.world_to_grid(monster.global_position)
 
 	# Calculate movement direction
 	var direction := survivor_pos - monster_pos
 
 	# Get perpendicular directions (rotate 90° left and right)
-	var perp_dirs := [
+	var perp_dirs: Array[Vector2i] = [
 		Vector2i(-direction.y, direction.x),  # Rotate left
 		Vector2i(direction.y, -direction.x)   # Rotate right
 	]
@@ -115,7 +115,7 @@ func _is_valid_and_empty(grid_pos: Vector2i) -> bool:
 	# Check if no entity occupies this position
 	for entity_id in entities:
 		var entity: EntityPlaceholder = entities[entity_id]
-		var entity_grid_pos := grid.world_to_grid(entity.global_position)
+		var entity_grid_pos: Vector2i = grid.world_to_grid(entity.global_position)
 		if entity_grid_pos == grid_pos:
 			return false
 
@@ -123,12 +123,12 @@ func _is_valid_and_empty(grid_pos: Vector2i) -> bool:
 
 
 func _move_entity_to(entity: EntityPlaceholder, grid_pos: Vector2i) -> void:
-	var world_pos := grid.grid_to_world(grid_pos.x, grid_pos.y)
+	var world_pos: Vector3 = grid.grid_to_world(grid_pos.x, grid_pos.y)
 	entity.global_position = world_pos
 
 
 func _get_monsters() -> Dictionary:
-	var monsters := {}
+	var monsters: Dictionary = {}
 	for entity_id in entities:
 		var entity: EntityPlaceholder = entities[entity_id]
 		if entity.entity_type == EntityPlaceholder.EntityType.MONSTER:
@@ -137,7 +137,7 @@ func _get_monsters() -> Dictionary:
 
 
 func _get_survivors() -> Dictionary:
-	var survivors := {}
+	var survivors: Dictionary = {}
 	for entity_id in entities:
 		var entity: EntityPlaceholder = entities[entity_id]
 		if entity.entity_type == EntityPlaceholder.EntityType.SURVIVOR:
