@@ -130,8 +130,13 @@ func _on_rotation_complete() -> void:
 
 
 func _on_monster_turn_pressed() -> void:
+	if not monster_ai:
+		push_error("MonsterAIController not initialized")
+		return
+
 	turn_state.set_turn(TurnState.Turn.MONSTER)
 	tactical_ui.set_disabled(true)
+	# AI execution is async; UI re-enabled by _on_monster_ai_completed signal handler
 	await monster_ai.execute_monster_turn()
 
 
