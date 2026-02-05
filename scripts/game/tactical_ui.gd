@@ -34,6 +34,8 @@ func _on_end_turn_pressed() -> void:
 	end_turn_pressed.emit()
 
 
+## Disables or enables all turn control buttons.
+## Used to prevent user input during monster AI turn execution.
 func set_disabled(disabled: bool) -> void:
 	monster_turn_btn.disabled = disabled
 	end_turn_btn.disabled = disabled
