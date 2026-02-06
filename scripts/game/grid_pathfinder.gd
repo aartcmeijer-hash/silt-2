@@ -1,7 +1,7 @@
 class_name GridPathfinder
 extends RefCounted
 ## Wraps Godot's AStar2D for grid-based pathfinding.
-## Provides pathfinding on a 2D grid with configurable dimensions.
+## Provides 4-directional pathfinding on a 2D grid with configurable dimensions.
 
 var astar: AStar2D
 var grid_width: int
@@ -31,16 +31,12 @@ func _build_grid() -> void:
 func _connect_neighbors(x: int, y: int) -> void:
 	var current_id := _get_point_id(x, y)
 
-	# 8-directional movement
+	# 4-directional movement (no diagonals)
 	var neighbors: Array[Vector2i] = [
 		Vector2i(x - 1, y),     # Left
 		Vector2i(x + 1, y),     # Right
 		Vector2i(x, y - 1),     # Up
 		Vector2i(x, y + 1),     # Down
-		Vector2i(x - 1, y - 1), # Top-left
-		Vector2i(x + 1, y - 1), # Top-right
-		Vector2i(x - 1, y + 1), # Bottom-left
-		Vector2i(x + 1, y + 1), # Bottom-right
 	]
 
 	for neighbor in neighbors:
