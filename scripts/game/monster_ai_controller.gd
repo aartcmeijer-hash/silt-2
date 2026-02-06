@@ -40,6 +40,11 @@ func execute_monster_turn() -> void:
 			# TODO: Add shuffle animation when UI is ready
 			deck.shuffle_discard_into_deck()
 
+		# Check for completely empty deck (initialization error)
+		if deck.get_draw_pile_count() == 0 and deck.get_discard_pile_count() == 0:
+			push_error("Monster %s has completely empty deck (no cards at all)" % monster_id)
+			continue
+
 		# Draw card
 		var card: MonsterActionCard = deck.draw_card()
 		if not card:
@@ -49,7 +54,7 @@ func execute_monster_turn() -> void:
 		# TODO: Add card flip animation when UI is ready
 
 		# Resolve targeting
-		var target_id: String = _resolve_targeting(card, monsters, survivors)
+		var target_id: String = _resolve_targeting(card, monster_id, monsters, survivors)
 		if target_id.is_empty():
 			deck.discard_card(card)
 			continue
@@ -183,12 +188,12 @@ func initialize_monster_deck(monster_id: String, deck_config: MonsterDeckConfig)
 	monster_decks[monster_id] = deck
 
 
-func _resolve_targeting(card: MonsterActionCard, monsters: Dictionary, survivors: Dictionary) -> String:
+func _resolve_targeting(card: MonsterActionCard, monster_id: String, monsters: Dictionary, survivors: Dictionary) -> String:
 	# For now, only implement RANDOM_SURVIVOR
 	# Future: extend to support other targeting types
 	match card.targeting_type:
 		MonsterActionCard.TargetingType.RANDOM_SURVIVOR:
-			return targeting_strategy.pick_target("", monsters, survivors)
+			return targeting_strategy.pick_target(monster_id, monsters, survivors)
 		_:
 			push_warning("Targeting type not yet implemented: %d" % card.targeting_type)
 			return ""
