@@ -74,6 +74,10 @@ func _spawn_entity(id: String, grid_pos: Vector2i, type: EntityPlaceholder.Entit
 	entity.position = grid.grid_to_world(grid_pos.x, grid_pos.y)
 	entities[id] = entity
 
+	# Initialize deck for monsters
+	if type == EntityPlaceholder.EntityType.MONSTER:
+		_initialize_monster_deck(id)
+
 
 func _setup_camera() -> void:
 	if camera:
@@ -173,3 +177,12 @@ func _on_resume_pressed() -> void:
 func _on_main_menu_pressed() -> void:
 	get_tree().paused = false
 	GameManager.return_to_menu()
+
+
+func _initialize_monster_deck(monster_id: String) -> void:
+	var deck_config: MonsterDeckConfig = load("res://data/decks/basic_monster_deck.tres")
+	if not deck_config:
+		push_error("Failed to load basic_monster_deck.tres")
+		return
+
+	monster_ai.initialize_monster_deck(monster_id, deck_config)
