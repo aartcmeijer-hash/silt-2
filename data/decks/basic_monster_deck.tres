@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MonsterDeckConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/cards/monster_deck_config.gd" id="1"]
+[ext_resource type="Resource" path="res://data/cards/move_random_survivor.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+deck_name = "Basic Monster"
+cards = Array[Resource]([ExtResource("2")])
+card_counts = Array[int]([10])
