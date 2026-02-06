@@ -6,5 +6,5 @@ func pick_target(monster_id: String, monsters: Dictionary, survivors: Dictionary
 	if survivors.is_empty():
 		return ""
 
-	var survivor_ids := survivors.keys()
+	var survivor_ids: Array = survivors.keys()
 	return survivor_ids[randi_range(0, survivor_ids.size() - 1)]
