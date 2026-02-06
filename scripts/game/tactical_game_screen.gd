@@ -62,8 +62,8 @@ func _spawn_initial_entities() -> void:
 
 	var survivor_positions: Array[Vector2i] = grid.get_bottom_row_positions(4)
 	for i in range(survivor_positions.size()):
-		var pos := survivor_positions[i]
-		var id := "survivor_%d" % (i + 1)
+		var pos: Vector2i = survivor_positions[i]
+		var id: String = "survivor_%d" % (i + 1)
 		_spawn_entity(id, pos, EntityPlaceholder.EntityType.SURVIVOR, "S%d" % (i + 1), Color(0.2, 0.6, 1.0))
 
 
