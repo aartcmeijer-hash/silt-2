@@ -57,10 +57,10 @@ func _input(event: InputEvent) -> void:
 
 
 func _spawn_initial_entities() -> void:
-	var monster_pos := grid.get_grid_center()
+	var monster_pos: Vector2i = grid.get_grid_center()
 	_spawn_entity("monster_1", monster_pos, EntityPlaceholder.EntityType.MONSTER, "M", Color(0.9, 0.2, 0.2))
 
-	var survivor_positions := grid.get_bottom_row_positions(4)
+	var survivor_positions: Array[Vector2i] = grid.get_bottom_row_positions(4)
 	for i in range(survivor_positions.size()):
 		var pos := survivor_positions[i]
 		var id := "survivor_%d" % (i + 1)
