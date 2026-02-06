@@ -32,7 +32,7 @@ func _connect_neighbors(x: int, y: int) -> void:
 	var current_id := _get_point_id(x, y)
 
 	# 8-directional movement
-	var neighbors := [
+	var neighbors: Array[Vector2i] = [
 		Vector2i(x - 1, y),     # Left
 		Vector2i(x + 1, y),     # Right
 		Vector2i(x, y - 1),     # Up
@@ -59,11 +59,11 @@ func find_path(from: Vector2i, to: Vector2i, max_distance: int = -1) -> Array[Ve
 	if not astar.has_point(from_id) or not astar.has_point(to_id):
 		return []
 
-	var path := astar.get_point_path(from_id, to_id)
+	var path: PackedVector2Array = astar.get_point_path(from_id, to_id)
 
 	# Convert Vector2 path to Vector2i array and limit distance
 	var result: Array[Vector2i] = []
-	var limit := path.size() if max_distance < 0 else min(path.size(), max_distance + 1)
+	var limit: int = path.size() if max_distance < 0 else min(path.size(), max_distance + 1)
 
 	for i in range(limit):
 		result.append(Vector2i(int(path[i].x), int(path[i].y)))
