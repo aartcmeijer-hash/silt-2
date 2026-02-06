@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwrbhpe3v2r6p"]
+
+[ext_resource type="Script" path="res://scenes/game/ui/action_card_display.gd" id="1"]
+
+[node name="ActionCardDisplay" type="PanelContainer"]
+custom_minimum_size = Vector2(150, 200)
+script = ExtResource("1")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="BodyLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
