@@ -14,10 +14,18 @@ func create_deck() -> MonsterDeck:
 		push_error("MonsterDeckConfig: cards and card_counts arrays must have same size")
 		return deck
 
+	if cards.is_empty():
+		push_warning("MonsterDeckConfig: creating empty deck for '%s'" % deck_name)
+		return deck
+
 	# Populate draw pile
 	for i in range(cards.size()):
 		var card: MonsterActionCard = cards[i]
 		var count: int = card_counts[i]
+
+		if count < 0:
+			push_warning("MonsterDeckConfig: negative count %d at index %d, treating as 0" % [count, i])
+			continue
 
 		if not card:
 			push_warning("MonsterDeckConfig: null card at index %d" % i)
