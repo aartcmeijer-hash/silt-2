@@ -5,40 +5,89 @@
 [ext_resource type="PackedScene" uid="uid://ctacticalui" path="res://scenes/game/tactical_ui.tscn" id="3_ui"]
 [ext_resource type="PackedScene" uid="uid://cmonsterdeck" path="res://scenes/game/ui/monster_deck_ui.tscn" id="4_deckui"]
 
-[node name="TacticalGameScreen" type="Node3D"]
-script = ExtResource("1_tactical")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 300, 300)
-projection = 1
-size = 400.0
-far = 1000.0
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 500, 500)
-light_energy = 1.0
-shadow_enabled = true
-
-[node name="IsometricGrid" parent="." instance=ExtResource("2_grid")]
-
-[node name="EntityContainer" type="Node3D" parent="IsometricGrid"]
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="TacticalUI" parent="CanvasLayer" instance=ExtResource("3_ui")]
-
-[node name="MonsterDeckUI" parent="CanvasLayer" instance=ExtResource("4_deckui")]
-
-[node name="PauseMenu" type="Control" parent="CanvasLayer"]
-visible = false
+[node name="TacticalGameScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_tactical")
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer/PauseMenu"]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MonsterDeckUI" parent="VBoxContainer" instance=ExtResource("4_deckui")]
+layout_mode = 2
+anchors_preset = 0
+anchor_left = 0.0
+anchor_right = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="VBoxContainer/HBoxContainer/SubViewportContainer"]
+handle_input_events = false
+size = Vector2i(1024, 600)
+render_target_update_mode = 4
+
+[node name="GameWorld" type="Node3D" parent="VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport"]
+
+[node name="Camera3D" type="Camera3D" parent="VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 300, 300)
+projection = 1
+size = 400.0
+far = 1000.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 500, 500)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="IsometricGrid" parent="VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld" instance=ExtResource("2_grid")]
+
+[node name="EntityContainer" type="Node3D" parent="VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld/IsometricGrid"]
+
+[node name="TacticalUI" parent="VBoxContainer/HBoxContainer" instance=ExtResource("3_ui")]
+layout_mode = 2
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 1
+
+[node name="PauseMenu" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="PauseMenu"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -47,7 +96,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PauseMenu"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PauseMenu"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -62,23 +111,23 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+[node name="Title" type="Label" parent="PauseMenu/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "PAUSED"
 horizontal_alignment = 1
 
-[node name="ResumeButton" type="Button" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+[node name="ResumeButton" type="Button" parent="PauseMenu/VBoxContainer"]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Resume"
 
-[node name="MainMenuButton" type="Button" parent="CanvasLayer/PauseMenu/VBoxContainer"]
+[node name="MainMenuButton" type="Button" parent="PauseMenu/VBoxContainer"]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Main Menu"
 
-[connection signal="pressed" from="CanvasLayer/PauseMenu/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
-[connection signal="pressed" from="CanvasLayer/PauseMenu/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]
+[connection signal="pressed" from="PauseMenu/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
+[connection signal="pressed" from="PauseMenu/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]

@@ -1,16 +1,16 @@
-extends Node3D
+extends Control
 ## Main tactical game screen controller.
 ## Manages the isometric grid, entities, and turn-based gameplay.
 
 const ENTITY_PLACEHOLDER_SCENE := preload("res://scenes/game/entity_placeholder.tscn")
 
-@onready var camera: Camera3D = $Camera3D
-@onready var grid: IsometricGrid = $IsometricGrid
-@onready var entity_container: Node3D = $IsometricGrid/EntityContainer
-@onready var tactical_ui: Control = $CanvasLayer/TacticalUI
-@onready var monster_deck_ui: Control = $CanvasLayer/MonsterDeckUI
-@onready var pause_menu: Control = $CanvasLayer/PauseMenu
-@onready var resume_button: Button = $CanvasLayer/PauseMenu/VBoxContainer/ResumeButton
+@onready var camera: Camera3D = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld/Camera3D
+@onready var grid: IsometricGrid = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld/IsometricGrid
+@onready var entity_container: Node3D = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld/IsometricGrid/EntityContainer
+@onready var tactical_ui: Control = $VBoxContainer/HBoxContainer/TacticalUI
+@onready var monster_deck_ui: Control = $VBoxContainer/MonsterDeckUI
+@onready var pause_menu: Control = $PauseMenu
+@onready var resume_button: Button = $PauseMenu/VBoxContainer/ResumeButton
 
 var turn_state: TurnState
 var monster_ai: MonsterAIController
@@ -87,7 +87,8 @@ func _setup_camera() -> void:
 		# Create pivot node at grid center
 		camera_pivot = Node3D.new()
 		camera_pivot.name = "CameraPivot"
-		add_child(camera_pivot)
+		var game_world = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld
+		game_world.add_child(camera_pivot)
 		camera_pivot.position = Vector3.ZERO
 
 		# Reparent camera to pivot
