@@ -16,6 +16,9 @@ func set_card_data(card: MonsterActionCard) -> void:
 
 func show_front() -> void:
 	showing_front = true
+	if not is_node_ready():
+		return
+
 	if not current_card:
 		title_label.text = ""
 		body_label.text = ""
@@ -41,6 +44,9 @@ func show_front() -> void:
 
 func show_back() -> void:
 	showing_front = false
+	if not is_node_ready():
+		return
+
 	title_label.text = ""
 	body_label.text = "[center][b]?[/b][/center]"
 
@@ -58,6 +64,9 @@ func show_back() -> void:
 func clear() -> void:
 	current_card = null
 	showing_front = false
+	if not is_node_ready():
+		return
+
 	title_label.text = ""
 	body_label.text = ""
 
