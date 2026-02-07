@@ -35,28 +35,47 @@ func execute_monster_turn() -> void:
 
 		var deck: MonsterDeck = monster_decks[monster_id]
 
+		# Highlight active monster
+		if deck_ui:
+			deck_ui.highlight_monster(monster_id, true)
+
 		# Shuffle if needed
 		if deck.needs_shuffle():
-			# TODO: Add shuffle animation when UI is ready
+			# TODO: Add shuffle animation when ready
 			deck.shuffle_discard_into_deck()
+			_update_deck_ui(monster_id)
 
 		# Check for completely empty deck (initialization error)
 		if deck.get_draw_pile_count() == 0 and deck.get_discard_pile_count() == 0:
 			push_error("Monster %s has completely empty deck (no cards at all)" % monster_id)
+			if deck_ui:
+				deck_ui.highlight_monster(monster_id, false)
 			continue
 
 		# Draw card
 		var card: MonsterActionCard = deck.draw_card()
 		if not card:
 			push_warning("Failed to draw card for monster %s" % monster_id)
+			if deck_ui:
+				deck_ui.highlight_monster(monster_id, false)
 			continue
 
-		# TODO: Add card flip animation when UI is ready
+		# Update UI: show card and update deck count
+		_update_deck_ui(monster_id)
+		if deck_ui:
+			deck_ui.show_active_card(monster_id, card)
+
+		# TODO: Add card flip animation when ready
+		await get_tree().create_timer(0.5).timeout  # Temporary delay to read card
 
 		# Resolve targeting
 		var target_id: String = _resolve_targeting(card, monster_id, monsters, survivors)
 		if target_id.is_empty():
 			deck.discard_card(card)
+			_update_deck_ui(monster_id)
+			if deck_ui:
+				deck_ui.clear_active_card(monster_id)
+				deck_ui.highlight_monster(monster_id, false)
 			continue
 
 		# Execute action
@@ -64,7 +83,11 @@ func execute_monster_turn() -> void:
 
 		# Discard card
 		deck.discard_card(card)
-		# TODO: Add discard animation when UI is ready
+		_update_deck_ui(monster_id)
+		if deck_ui:
+			deck_ui.clear_active_card(monster_id)
+			deck_ui.highlight_monster(monster_id, false)
+		# TODO: Add discard animation when ready
 
 	turn_completed.emit()
 
@@ -186,6 +209,17 @@ func initialize_monster_deck(monster_id: String, deck_config: MonsterDeckConfig)
 
 	var deck: MonsterDeck = deck_config.create_deck()
 	monster_decks[monster_id] = deck
+
+
+func _update_deck_ui(monster_id: String) -> void:
+	if not deck_ui or not monster_decks.has(monster_id):
+		return
+
+	var deck: MonsterDeck = monster_decks[monster_id]
+	deck_ui.update_deck_count(monster_id, deck.get_draw_pile_count())
+
+	var top_discard := deck.get_top_discard()
+	deck_ui.update_discard_top(monster_id, top_discard)
 
 
 func _resolve_targeting(card: MonsterActionCard, monster_id: String, monsters: Dictionary, survivors: Dictionary) -> String:
