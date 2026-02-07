@@ -8,6 +8,7 @@ const ENTITY_PLACEHOLDER_SCENE := preload("res://scenes/game/entity_placeholder.
 @onready var grid: IsometricGrid = $IsometricGrid
 @onready var entity_container: Node3D = $IsometricGrid/EntityContainer
 @onready var tactical_ui: Control = $CanvasLayer/TacticalUI
+@onready var monster_deck_ui: Control = $CanvasLayer/MonsterDeckUI
 @onready var pause_menu: Control = $CanvasLayer/PauseMenu
 @onready var resume_button: Button = $CanvasLayer/PauseMenu/VBoxContainer/ResumeButton
 
@@ -30,6 +31,7 @@ func _ready() -> void:
 	monster_ai = MonsterAIController.new(grid, entities)
 	add_child(monster_ai)
 	monster_ai.turn_completed.connect(_on_monster_ai_completed)
+	monster_ai.deck_ui = monster_deck_ui
 
 	tactical_ui.monster_turn_pressed.connect(_on_monster_turn_pressed)
 	tactical_ui.end_turn_pressed.connect(_on_end_turn_pressed)
@@ -77,6 +79,7 @@ func _spawn_entity(id: String, grid_pos: Vector2i, type: EntityPlaceholder.Entit
 	# Initialize deck for monsters
 	if type == EntityPlaceholder.EntityType.MONSTER:
 		_initialize_monster_deck(id)
+		monster_deck_ui.create_monster_row(id, label)
 
 
 func _setup_camera() -> void:
@@ -186,3 +189,7 @@ func _initialize_monster_deck(monster_id: String) -> void:
 		return
 
 	monster_ai.initialize_monster_deck(monster_id, deck_config)
+
+	# Update UI with initial deck count
+	var deck: MonsterDeck = monster_ai.monster_decks[monster_id]
+	monster_deck_ui.update_deck_count(monster_id, deck.get_draw_pile_count())

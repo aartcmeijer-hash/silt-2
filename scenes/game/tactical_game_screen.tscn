@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://dixwuw7btbhtt"]
+[gd_scene load_steps=5 format=3 uid="uid://dixwuw7btbhtt"]
 
 [ext_resource type="Script" path="res://scripts/game/tactical_game_screen.gd" id="1_tactical"]
 [ext_resource type="PackedScene" uid="uid://c7isometricgrid" path="res://scenes/game/isometric_grid.tscn" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://ctacticalui" path="res://scenes/game/tactical_ui.tscn" id="3_ui"]
+[ext_resource type="PackedScene" uid="uid://cmonsterdeck" path="res://scenes/game/ui/monster_deck_ui.tscn" id="4_deckui"]
 
 [node name="TacticalGameScreen" type="Node3D"]
 script = ExtResource("1_tactical")
@@ -25,6 +26,8 @@ shadow_enabled = true
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TacticalUI" parent="CanvasLayer" instance=ExtResource("3_ui")]
+
+[node name="MonsterDeckUI" parent="CanvasLayer" instance=ExtResource("4_deckui")]
 
 [node name="PauseMenu" type="Control" parent="CanvasLayer"]
 visible = false
