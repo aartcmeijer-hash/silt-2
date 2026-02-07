@@ -67,6 +67,36 @@ func play_card_discard_animation(monster_id: String, card: MonsterActionCard) ->
 	row.active_card_display.modulate.a = 1.0
 
 
+func play_shuffle_animation(monster_id: String) -> void:
+	if not monster_rows.has(monster_id):
+		return
+
+	var row: MonsterDeckRow = monster_rows[monster_id]
+
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Gather: discard moves toward deck
+	tween.tween_property(row.discard_display, "position:x", -50, 0.3).as_relative()
+	tween.parallel().tween_property(row.discard_display, "modulate:a", 0.3, 0.3)
+
+	# Shuffle effect: shake deck
+	tween.tween_property(row.deck_display, "position:x", 5, 0.1).as_relative()
+	tween.tween_property(row.deck_display, "position:x", -10, 0.1).as_relative()
+	tween.tween_property(row.deck_display, "position:x", 5, 0.1).as_relative()
+	tween.tween_property(row.deck_display, "position:x", 0, 0.1).as_relative()
+
+	# Restore discard position and fade
+	tween.tween_property(row.discard_display, "position:x", 50, 0.2).as_relative()
+	tween.parallel().tween_property(row.discard_display, "modulate:a", 1.0, 0.2)
+
+	await tween.finished
+
+	# Clear discard pile visual after shuffle
+	row.update_discard_top(null)
+
+
 func highlight_monster(monster_id: String, enabled: bool) -> void:
 	if monster_rows.has(monster_id):
 		monster_rows[monster_id].set_highlighted(enabled)

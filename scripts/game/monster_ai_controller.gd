@@ -41,7 +41,8 @@ func execute_monster_turn() -> void:
 
 		# Shuffle if needed
 		if deck.needs_shuffle():
-			# TODO: Add shuffle animation when ready
+			if deck_ui:
+				await deck_ui.play_shuffle_animation(monster_id)
 			deck.shuffle_discard_into_deck()
 			_update_deck_ui(monster_id)
 
