@@ -43,6 +43,30 @@ func play_card_flip_animation(monster_id: String, card: MonsterActionCard) -> vo
 	await row.active_card_display.flip_to_front()
 
 
+func play_card_discard_animation(monster_id: String, card: MonsterActionCard) -> void:
+	if not monster_rows.has(monster_id):
+		return
+
+	var row: MonsterDeckRow = monster_rows[monster_id]
+
+	# Animate active card sliding to discard position
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Fade out active card
+	tween.tween_property(row.active_card_display, "modulate:a", 0.0, 0.2)
+
+	await tween.finished
+
+	# Update discard pile to show the card
+	row.update_discard_top(card)
+
+	# Clear and restore active card area
+	row.clear_active_card()
+	row.active_card_display.modulate.a = 1.0
+
+
 func highlight_monster(monster_id: String, enabled: bool) -> void:
 	if monster_rows.has(monster_id):
 		monster_rows[monster_id].set_highlighted(enabled)

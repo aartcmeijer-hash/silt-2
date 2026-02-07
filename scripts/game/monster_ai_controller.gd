@@ -73,8 +73,10 @@ func execute_monster_turn() -> void:
 			deck.discard_card(card)
 			_update_deck_ui(monster_id)
 			if deck_ui:
-				deck_ui.clear_active_card(monster_id)
+				await deck_ui.play_card_discard_animation(monster_id, card)
 				deck_ui.highlight_monster(monster_id, false)
+			else:
+				await get_tree().create_timer(0.2).timeout
 			continue
 
 		# Execute action
@@ -84,9 +86,10 @@ func execute_monster_turn() -> void:
 		deck.discard_card(card)
 		_update_deck_ui(monster_id)
 		if deck_ui:
-			deck_ui.clear_active_card(monster_id)
+			await deck_ui.play_card_discard_animation(monster_id, card)
 			deck_ui.highlight_monster(monster_id, false)
-		# TODO: Add discard animation when ready
+		else:
+			await get_tree().create_timer(0.2).timeout
 
 	turn_completed.emit()
 
