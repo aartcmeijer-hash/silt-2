@@ -41,6 +41,10 @@ func show_front() -> void:
 		style.border_width_bottom = 2
 	add_theme_stylebox_override("panel", style)
 
+	# Set text colors to dark for visibility on white background
+	title_label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.1))
+	body_label.add_theme_color_override("default_color", Color(0.1, 0.1, 0.1))
+
 
 func show_back() -> void:
 	showing_front = false
@@ -59,6 +63,10 @@ func show_back() -> void:
 	style.border_width_top = 2
 	style.border_width_bottom = 2
 	add_theme_stylebox_override("panel", style)
+
+	# Set text colors to light for visibility on dark background
+	title_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
+	body_label.add_theme_color_override("default_color", Color(0.9, 0.9, 0.9))
 
 
 func clear() -> void:
@@ -81,6 +89,10 @@ func clear() -> void:
 	style.set_border_width_all(2)
 	style.draw_center = false
 	add_theme_stylebox_override("panel", style)
+
+	# Set text colors to dimmed for empty state
+	title_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 0.5))
+	body_label.add_theme_color_override("default_color", Color(0.5, 0.5, 0.5, 0.5))
 
 
 func flip_to_front() -> void:
