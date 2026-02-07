@@ -63,10 +63,9 @@ func execute_monster_turn() -> void:
 		# Update UI: show card and update deck count
 		_update_deck_ui(monster_id)
 		if deck_ui:
-			deck_ui.show_active_card(monster_id, card)
-
-		# TODO: Add card flip animation when ready
-		await get_tree().create_timer(0.5).timeout  # Temporary delay to read card
+			await deck_ui.play_card_flip_animation(monster_id, card)
+		else:
+			await get_tree().create_timer(0.5).timeout
 
 		# Resolve targeting
 		var target_id: String = _resolve_targeting(card, monster_id, monsters, survivors)

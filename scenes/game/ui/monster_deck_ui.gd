@@ -34,6 +34,15 @@ func clear_active_card(monster_id: String) -> void:
 		monster_rows[monster_id].clear_active_card()
 
 
+func play_card_flip_animation(monster_id: String, card: MonsterActionCard) -> void:
+	if not monster_rows.has(monster_id):
+		return
+
+	var row: MonsterDeckRow = monster_rows[monster_id]
+	row.active_card_display.set_card_data(card)
+	await row.active_card_display.flip_to_front()
+
+
 func highlight_monster(monster_id: String, enabled: bool) -> void:
 	if monster_rows.has(monster_id):
 		monster_rows[monster_id].set_highlighted(enabled)

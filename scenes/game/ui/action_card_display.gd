@@ -72,3 +72,24 @@ func clear() -> void:
 	style.set_border_width_all(2)
 	style.draw_center = false
 	add_theme_stylebox_override("panel", style)
+
+
+func flip_to_front() -> void:
+	# Start showing back
+	show_back()
+
+	# Animate rotation and reveal front
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Scale down horizontally (simulate rotation to edge)
+	tween.tween_property(self, "scale:x", 0.0, 0.2)
+
+	# Switch to front at midpoint
+	tween.tween_callback(show_front)
+
+	# Scale back up
+	tween.tween_property(self, "scale:x", 1.0, 0.2)
+
+	await tween.finished
