@@ -65,6 +65,8 @@ func execute_monster_turn() -> void:
 		_update_deck_ui(monster_id)
 		if deck_ui:
 			await deck_ui.play_card_flip_animation(monster_id, card)
+			# Hold card visible for player to read
+			await get_tree().create_timer(0.5).timeout
 		else:
 			await get_tree().create_timer(0.5).timeout
 
