@@ -48,10 +48,10 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event.is_action_pressed("rotate_left"):
-		rotate_camera(-90)
+		rotate_camera(-45)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("rotate_right"):
-		rotate_camera(90)
+		rotate_camera(45)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
 		toggle_pause()
