@@ -82,25 +82,31 @@ func _create_gridlines() -> void:
 
 	# Draw vertical lines (along Z-axis)
 	for x in range(grid_width + 1):
-		var world_x := (x + offset.x) * tile_size
-		var start_z := offset.y * tile_size
-		var end_z := (offset.y + grid_height) * tile_size
+		# Use GridMap.map_to_local() to get actual world positions
+		var start_pos := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
+		var end_pos := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y + grid_height))
+
+		start_pos.y = y_pos
+		end_pos.y = y_pos
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(world_x, y_pos, start_z))
+		mesh.surface_add_vertex(start_pos)
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(world_x, y_pos, end_z))
+		mesh.surface_add_vertex(end_pos)
 
 	# Draw horizontal lines (along X-axis)
 	for z in range(grid_height + 1):
-		var world_z := (z + offset.y) * tile_size
-		var start_x := offset.x * tile_size
-		var end_x := (offset.x + grid_width) * tile_size
+		# Use GridMap.map_to_local() to get actual world positions
+		var start_pos := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
+		var end_pos := grid_map.map_to_local(Vector3i(offset.x + grid_width, 0, z + offset.y))
+
+		start_pos.y = y_pos
+		end_pos.y = y_pos
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(start_x, y_pos, world_z))
+		mesh.surface_add_vertex(start_pos)
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(end_x, y_pos, world_z))
+		mesh.surface_add_vertex(end_pos)
 
 	mesh.surface_end()
 
