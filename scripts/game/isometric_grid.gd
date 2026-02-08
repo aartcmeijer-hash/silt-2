@@ -33,14 +33,15 @@ func _populate_grid() -> void:
 
 func grid_to_world(grid_x: int, grid_y: int) -> Vector3:
 	var offset := _get_grid_offset()
-	return Vector3((grid_x + offset.x) * tile_size, 0, (grid_y + offset.y) * tile_size)
+	# Use GridMap.map_to_local() to get accurate cell center position
+	return grid_map.map_to_local(Vector3i(grid_x + offset.x, 0, grid_y + offset.y))
 
 
 func world_to_grid(world_pos: Vector3) -> Vector2i:
 	var offset := _get_grid_offset()
-	var grid_x := int(round(world_pos.x / tile_size)) - offset.x
-	var grid_z := int(round(world_pos.z / tile_size)) - offset.y
-	return Vector2i(grid_x, grid_z)
+	# Use GridMap.local_to_map() to get accurate grid position
+	var map_pos := grid_map.local_to_map(world_pos)
+	return Vector2i(map_pos.x - offset.x, map_pos.z - offset.y)
 
 
 func get_grid_center() -> Vector2i:
