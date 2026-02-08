@@ -2,12 +2,11 @@
 
 [ext_resource type="Material" path="res://resources/materials/floor_tile_material.tres" id="1_floor_material"]
 
-[sub_resource type="QuadMesh" id="QuadMesh_floor_tile"]
-size = Vector2(32, 32)
-orientation = 1
+[sub_resource type="BoxMesh" id="BoxMesh_floor_tile"]
+size = Vector3(32, 25, 32)
 
 [resource]
 item/0/name = "FloorTile"
-item/0/mesh = SubResource("QuadMesh_floor_tile")
-item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/mesh = SubResource("BoxMesh_floor_tile")
+item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -12.5, 0)
 item/0/material_override = ExtResource("1_floor_material")
