@@ -8,6 +8,8 @@ extends Node3D
 
 @onready var grid_map: GridMap = $GridMap
 
+var _gridlines_mesh: MeshInstance3D = null
+
 
 func _get_grid_offset() -> Vector2i:
 	return Vector2i(-int(floor(grid_width / 2.0)), -int(floor(grid_height / 2.0)))
@@ -15,6 +17,9 @@ func _get_grid_offset() -> Vector2i:
 
 func _ready() -> void:
 	_populate_grid()
+	_create_gridlines()
+	_update_gridlines_visibility()
+	SettingsManager.gridlines_changed.connect(_on_gridlines_setting_changed)
 
 
 func _populate_grid() -> void:
@@ -48,3 +53,62 @@ func get_bottom_row_positions(count: int) -> Array[Vector2i]:
 	for i in range(count):
 		positions.append(Vector2i(start_x + i, grid_height - 1))
 	return positions
+
+
+func _create_gridlines() -> void:
+	# Create MeshInstance3D for gridlines if it doesn't exist
+	if _gridlines_mesh == null:
+		_gridlines_mesh = MeshInstance3D.new()
+		_gridlines_mesh.name = "GridLines"
+		add_child(_gridlines_mesh)
+
+	# Create material
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = true
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	# Create mesh
+	var mesh := ImmediateMesh.new()
+	_gridlines_mesh.mesh = mesh
+	_gridlines_mesh.material_override = material
+
+	# Draw gridlines
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+
+	var offset := _get_grid_offset()
+	var y_pos := 0.01  # Slight offset to prevent z-fighting
+	var line_color := Color(1.0, 1.0, 1.0, 0.9)  # Bright white, high opacity
+
+	# Draw vertical lines (along Z-axis)
+	for x in range(grid_width + 1):
+		var world_x := (x + offset.x) * tile_size
+		var start_z := offset.y * tile_size
+		var end_z := (offset.y + grid_height) * tile_size
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(world_x, y_pos, start_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(world_x, y_pos, end_z))
+
+	# Draw horizontal lines (along X-axis)
+	for z in range(grid_height + 1):
+		var world_z := (z + offset.y) * tile_size
+		var start_x := offset.x * tile_size
+		var end_x := (offset.x + grid_width) * tile_size
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(start_x, y_pos, world_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(end_x, y_pos, world_z))
+
+	mesh.surface_end()
+
+
+func _update_gridlines_visibility() -> void:
+	if _gridlines_mesh != null:
+		_gridlines_mesh.visible = SettingsManager.get_gridlines_enabled()
+
+
+func _on_gridlines_setting_changed(enabled: bool) -> void:
+	_update_gridlines_visibility()
