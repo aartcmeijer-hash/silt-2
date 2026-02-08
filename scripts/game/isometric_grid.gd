@@ -147,23 +147,26 @@ func _create_gridlines() -> void:
 		mesh.surface_add_vertex(Vector3(end_x, y_bottom, line_z))
 
 	# Draw vertical edge lines connecting top and bottom around perimeter
+	# Small offset to prevent z-fighting with box sides
+	var edge_offset := 0.5
+
 	# Left and right edges (along Z)
 	for z in range(grid_height + 1):
 		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
 		var line_z := cell_center.z - half_cell_z
 
-		# Left edge
+		# Left edge (offset outward in -X direction)
 		var left_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
-		var left_x := left_cell.x - half_cell_x
+		var left_x := left_cell.x - half_cell_x - edge_offset
 
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(left_x, y_top, line_z))
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(left_x, y_bottom, line_z))
 
-		# Right edge
+		# Right edge (offset outward in +X direction)
 		var right_cell := grid_map.map_to_local(Vector3i(offset.x + grid_width - 1, 0, offset.y))
-		var right_x := right_cell.x + half_cell_x
+		var right_x := right_cell.x + half_cell_x + edge_offset
 
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(right_x, y_top, line_z))
@@ -175,18 +178,18 @@ func _create_gridlines() -> void:
 		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
 		var line_x := cell_center.x - half_cell_x
 
-		# Top edge
+		# Top edge (offset outward in -Z direction)
 		var top_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
-		var top_z := top_cell.z - half_cell_z
+		var top_z := top_cell.z - half_cell_z - edge_offset
 
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(line_x, y_top, top_z))
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(line_x, y_bottom, top_z))
 
-		# Bottom edge
+		# Bottom edge (offset outward in +Z direction)
 		var bottom_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y + grid_height - 1))
-		var bottom_z := bottom_cell.z + half_cell_z
+		var bottom_z := bottom_cell.z + half_cell_z + edge_offset
 
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(line_x, y_top, bottom_z))
