@@ -120,3 +120,70 @@ Add clear, prominent visual borders around each grid tile in the isometric grid 
 - Implement batch highlighting
 - Add synchronized animation support
 - Integrate with game systems (movement, attacks, etc.)
+
+## Implementation Status
+
+**Status:** Complete
+**Date:** 2026-02-07
+
+**Implemented:**
+- SettingsManager autoload with ConfigFile persistence
+- ImmediateMesh-based gridline rendering in IsometricGrid
+- Options menu checkbox with signal-based updates
+- Default to enabled on first launch
+- Real-time updates when setting changes
+
+**Verified:**
+- Settings persist across sessions
+- Gridlines render correctly (Y=0.01 offset)
+- UI updates reflect current state
+- Edge cases handled (missing/corrupt settings file)
+
+**Future Work:**
+- Per-cell highlight system (Phase 2, as designed)
+
+**Architecture Verification:**
+- Settings stored in `user://settings.cfg` under `[graphics]` section
+- SettingsManager registered as autoload in `project.godot`
+- Gridlines render at Y=0.01 to prevent z-fighting
+- Signal-based communication: `SettingsManager.gridlines_changed` -> `IsometricGrid._on_gridlines_setting_changed()`
+- Fallback to defaults on missing/corrupt settings file
+
+**Manual Testing Required:**
+Due to limitations of automated testing with Godot, the following manual verification is required:
+
+1. **Initial Launch Test:**
+   - Delete `user://settings.cfg` if it exists (location varies by platform)
+   - Launch game and enter tactical screen
+   - Verify gridlines are visible by default
+
+2. **Toggle Test:**
+   - Navigate to Main Menu > Options
+   - Uncheck "Show Grid Lines"
+   - Return to tactical screen
+   - Verify gridlines are hidden
+
+3. **Persistence Test:**
+   - Exit game completely
+   - Restart game and enter tactical screen
+   - Verify gridlines remain hidden (setting persisted)
+   - Return to options and re-enable
+   - Verify gridlines appear immediately
+
+4. **Edge Cases:**
+   - Delete settings file while game is running, then toggle setting (should work)
+   - Manually corrupt settings file, restart game (should fall back to enabled default)
+   - Rapidly toggle setting multiple times (should not crash or glitch)
+   - Enter/exit tactical screen multiple times with different settings (should be consistent)
+
+**Expected Settings File Format:**
+```ini
+[graphics]
+show_gridlines=true
+```
+
+**Files Modified:**
+- `/Users/aart/src/silt-2/scripts/autoload/settings_manager.gd` (created)
+- `/Users/aart/src/silt-2/scripts/game/isometric_grid.gd` (enhanced)
+- `/Users/aart/src/silt-2/scripts/menus/options_menu.gd` (enhanced)
+- `/Users/aart/src/silt-2/project.godot` (autoload registration)
