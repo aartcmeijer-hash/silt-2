@@ -19,7 +19,7 @@ var is_paused: bool = false
 
 # Camera rotation state
 var camera_pivot: Node3D
-var current_angle: float = 0.0
+var current_angle: float = 45.0  # Start at corner angle
 var is_rotating: bool = false
 var rotation_tween: Tween = null
 
@@ -48,10 +48,10 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event.is_action_pressed("rotate_left"):
-		rotate_camera(-45)
+		rotate_camera(-90)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("rotate_right"):
-		rotate_camera(45)
+		rotate_camera(90)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
 		toggle_pause()
@@ -90,6 +90,7 @@ func _setup_camera() -> void:
 		var game_world = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport/GameWorld
 		game_world.add_child(camera_pivot)
 		camera_pivot.position = Vector3.ZERO
+		camera_pivot.rotation_degrees.y = 45.0  # Start at corner angle
 
 		# Reparent camera to pivot
 		var old_parent = camera.get_parent()
