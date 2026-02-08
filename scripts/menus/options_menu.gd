@@ -6,11 +6,13 @@ extends Control
 @onready var music_slider: HSlider = $VBoxContainer/MusicVolume/MusicSlider
 @onready var sfx_slider: HSlider = $VBoxContainer/SFXVolume/SFXSlider
 @onready var fullscreen_check: CheckBox = $VBoxContainer/Fullscreen/FullscreenCheck
+@onready var gridlines_check: CheckBox = $VBoxContainer/GridLines/GridLinesCheck
 
 
 func _ready() -> void:
 	# Load current settings
 	fullscreen_check.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	gridlines_check.button_pressed = SettingsManager.get_gridlines_enabled()
 
 	$VBoxContainer/BackButton.grab_focus()
 
@@ -40,3 +42,7 @@ func _on_fullscreen_toggled(toggled_on: bool) -> void:
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
+
+
+func _on_gridlines_toggled(toggled_on: bool) -> void:
+	SettingsManager.set_gridlines_enabled(toggled_on)

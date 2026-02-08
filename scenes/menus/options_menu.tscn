@@ -103,6 +103,19 @@ text = "Fullscreen"
 layout_mode = 2
 button_pressed = true
 
+[node name="GridLines" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/GridLines"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Show Grid Lines"
+
+[node name="GridLinesCheck" type="CheckBox" parent="VBoxContainer/GridLines"]
+layout_mode = 2
+button_pressed = true
+
 [node name="Spacer2" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
@@ -117,4 +130,5 @@ text = "Back"
 [connection signal="value_changed" from="VBoxContainer/MusicVolume/MusicSlider" to="." method="_on_music_volume_changed"]
 [connection signal="value_changed" from="VBoxContainer/SFXVolume/SFXSlider" to="." method="_on_sfx_volume_changed"]
 [connection signal="toggled" from="VBoxContainer/Fullscreen/FullscreenCheck" to="." method="_on_fullscreen_toggled"]
+[connection signal="toggled" from="VBoxContainer/GridLines/GridLinesCheck" to="." method="_on_gridlines_toggled"]
 [connection signal="pressed" from="VBoxContainer/BackButton" to="." method="_on_back_pressed"]
