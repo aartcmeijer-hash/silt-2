@@ -80,33 +80,43 @@ func _create_gridlines() -> void:
 	var y_pos := 0.01  # Slight offset to prevent z-fighting
 	var line_color := Color(1.0, 1.0, 1.0, 0.9)  # Bright white, high opacity
 
-	# Draw vertical lines (along Z-axis)
+	# Get half cell size for positioning lines at cell edges
+	var half_cell_x := grid_map.cell_size.x / 2.0
+	var half_cell_z := grid_map.cell_size.z / 2.0
+
+	# Draw vertical lines (along Z-axis) at cell edges
 	for x in range(grid_width + 1):
-		# Use GridMap.map_to_local() to get actual world positions
-		var start_pos := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
-		var end_pos := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y + grid_height))
+		# Get cell center position, then offset to left edge
+		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
+		var line_x := cell_center.x - half_cell_x
 
-		start_pos.y = y_pos
-		end_pos.y = y_pos
+		# Start and end Z positions (at cell edges)
+		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var end_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y + grid_height - 1))
+		var start_z := start_cell.z - half_cell_z
+		var end_z := end_cell.z + half_cell_z
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(start_pos)
+		mesh.surface_add_vertex(Vector3(line_x, y_pos, start_z))
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(end_pos)
+		mesh.surface_add_vertex(Vector3(line_x, y_pos, end_z))
 
-	# Draw horizontal lines (along X-axis)
+	# Draw horizontal lines (along X-axis) at cell edges
 	for z in range(grid_height + 1):
-		# Use GridMap.map_to_local() to get actual world positions
-		var start_pos := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
-		var end_pos := grid_map.map_to_local(Vector3i(offset.x + grid_width, 0, z + offset.y))
+		# Get cell center position, then offset to top edge
+		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
+		var line_z := cell_center.z - half_cell_z
 
-		start_pos.y = y_pos
-		end_pos.y = y_pos
+		# Start and end X positions (at cell edges)
+		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var end_cell := grid_map.map_to_local(Vector3i(offset.x + grid_width - 1, 0, offset.y))
+		var start_x := start_cell.x - half_cell_x
+		var end_x := end_cell.x + half_cell_x
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(start_pos)
+		mesh.surface_add_vertex(Vector3(start_x, y_pos, line_z))
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(end_pos)
+		mesh.surface_add_vertex(Vector3(end_x, y_pos, line_z))
 
 	mesh.surface_end()
 
