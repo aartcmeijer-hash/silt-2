@@ -78,46 +78,120 @@ func _create_gridlines() -> void:
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 
 	var offset := _get_grid_offset()
-	var y_pos := 0.5  # Offset to keep lines above grid tiles
+	var y_top := 0.5  # Top of grid board
+	var y_bottom := -25.0  # Bottom of grid board (medium thickness)
 	var line_color := Color(1.0, 1.0, 1.0, 0.9)  # Bright white, high opacity
 
 	# Get half cell size for positioning lines at cell edges
 	var half_cell_x := grid_map.cell_size.x / 2.0
 	var half_cell_z := grid_map.cell_size.z / 2.0
 
-	# Draw vertical lines (along Z-axis) at cell edges
+	# Draw top horizontal lines (along Z-axis) at cell edges
 	for x in range(grid_width + 1):
-		# Get cell center position, then offset to left edge
 		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
 		var line_x := cell_center.x - half_cell_x
 
-		# Start and end Z positions (at cell edges)
 		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
 		var end_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y + grid_height - 1))
 		var start_z := start_cell.z - half_cell_z
 		var end_z := end_cell.z + half_cell_z
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(line_x, y_pos, start_z))
+		mesh.surface_add_vertex(Vector3(line_x, y_top, start_z))
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(line_x, y_pos, end_z))
+		mesh.surface_add_vertex(Vector3(line_x, y_top, end_z))
 
-	# Draw horizontal lines (along X-axis) at cell edges
+	# Draw bottom horizontal lines (along Z-axis) at cell edges
+	for x in range(grid_width + 1):
+		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
+		var line_x := cell_center.x - half_cell_x
+
+		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var end_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y + grid_height - 1))
+		var start_z := start_cell.z - half_cell_z
+		var end_z := end_cell.z + half_cell_z
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_bottom, start_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_bottom, end_z))
+
+	# Draw top horizontal lines (along X-axis) at cell edges
 	for z in range(grid_height + 1):
-		# Get cell center position, then offset to top edge
 		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
 		var line_z := cell_center.z - half_cell_z
 
-		# Start and end X positions (at cell edges)
 		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
 		var end_cell := grid_map.map_to_local(Vector3i(offset.x + grid_width - 1, 0, offset.y))
 		var start_x := start_cell.x - half_cell_x
 		var end_x := end_cell.x + half_cell_x
 
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(start_x, y_pos, line_z))
+		mesh.surface_add_vertex(Vector3(start_x, y_top, line_z))
 		mesh.surface_set_color(line_color)
-		mesh.surface_add_vertex(Vector3(end_x, y_pos, line_z))
+		mesh.surface_add_vertex(Vector3(end_x, y_top, line_z))
+
+	# Draw bottom horizontal lines (along X-axis) at cell edges
+	for z in range(grid_height + 1):
+		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
+		var line_z := cell_center.z - half_cell_z
+
+		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var end_cell := grid_map.map_to_local(Vector3i(offset.x + grid_width - 1, 0, offset.y))
+		var start_x := start_cell.x - half_cell_x
+		var end_x := end_cell.x + half_cell_x
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(start_x, y_bottom, line_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(end_x, y_bottom, line_z))
+
+	# Draw vertical edge lines connecting top and bottom around perimeter
+	# Left and right edges (along Z)
+	for z in range(grid_height + 1):
+		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
+		var line_z := cell_center.z - half_cell_z
+
+		# Left edge
+		var left_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var left_x := left_cell.x - half_cell_x
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(left_x, y_top, line_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(left_x, y_bottom, line_z))
+
+		# Right edge
+		var right_cell := grid_map.map_to_local(Vector3i(offset.x + grid_width - 1, 0, offset.y))
+		var right_x := right_cell.x + half_cell_x
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(right_x, y_top, line_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(right_x, y_bottom, line_z))
+
+	# Top and bottom edges (along X)
+	for x in range(grid_width + 1):
+		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
+		var line_x := cell_center.x - half_cell_x
+
+		# Top edge
+		var top_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
+		var top_z := top_cell.z - half_cell_z
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_top, top_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_bottom, top_z))
+
+		# Bottom edge
+		var bottom_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y + grid_height - 1))
+		var bottom_z := bottom_cell.z + half_cell_z
+
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_top, bottom_z))
+		mesh.surface_set_color(line_color)
+		mesh.surface_add_vertex(Vector3(line_x, y_bottom, bottom_z))
 
 	mesh.surface_end()
 
