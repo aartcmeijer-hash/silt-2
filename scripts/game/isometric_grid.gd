@@ -77,18 +77,24 @@ func _create_gridlines() -> void:
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 
 	var offset := _get_grid_offset()
-	var y_pos := 0.01  # Slight offset to prevent z-fighting
+	var y_pos := 0.5  # Offset to keep lines above grid tiles
 	var line_color := Color(1.0, 1.0, 1.0, 0.9)  # Bright white, high opacity
 
 	# Get half cell size for positioning lines at cell edges
 	var half_cell_x := grid_map.cell_size.x / 2.0
 	var half_cell_z := grid_map.cell_size.z / 2.0
 
+	# DEBUG: Check line positions
+	print("=== GRIDLINE POSITIONS ===")
+	print("Drawing", grid_width + 1, "vertical lines")
+
 	# Draw vertical lines (along Z-axis) at cell edges
 	for x in range(grid_width + 1):
 		# Get cell center position, then offset to left edge
 		var cell_center := grid_map.map_to_local(Vector3i(x + offset.x, 0, offset.y))
 		var line_x := cell_center.x - half_cell_x
+
+		print("V-Line ", x, " - grid pos: ", x + offset.x, " | cell center: ", cell_center.x, " | line_x: ", line_x)
 
 		# Start and end Z positions (at cell edges)
 		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
@@ -101,11 +107,14 @@ func _create_gridlines() -> void:
 		mesh.surface_set_color(line_color)
 		mesh.surface_add_vertex(Vector3(line_x, y_pos, end_z))
 
+	print("\n=== HORIZONTAL LINES ===")
 	# Draw horizontal lines (along X-axis) at cell edges
 	for z in range(grid_height + 1):
 		# Get cell center position, then offset to top edge
 		var cell_center := grid_map.map_to_local(Vector3i(offset.x, 0, z + offset.y))
 		var line_z := cell_center.z - half_cell_z
+
+		print("H-Line ", z, " - grid pos: ", z + offset.y, " | cell center: ", cell_center.z, " | line_z: ", line_z)
 
 		# Start and end X positions (at cell edges)
 		var start_cell := grid_map.map_to_local(Vector3i(offset.x, 0, offset.y))
