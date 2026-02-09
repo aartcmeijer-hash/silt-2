@@ -8,6 +8,7 @@ enum EntityType { MONSTER, SURVIVOR }
 @export var entity_color: Color = Color.WHITE
 @export var entity_label: String = ""
 
+## Emitted by external systems (e.g., TacticalGameScreen) when entity is clicked.
 signal clicked()
 
 var entity_id: String = ""
@@ -40,6 +41,7 @@ func _update_visuals() -> void:
 			body.set_surface_override_material(0, material)
 		if material is StandardMaterial3D:
 			material.albedo_color = entity_color
+			_original_color = entity_color  # Store the actual entity color
 	if label_3d:
 		label_3d.text = entity_label
 
