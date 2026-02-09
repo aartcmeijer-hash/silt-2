@@ -22,7 +22,7 @@ func _build_grid() -> void:
 			var point_id := _get_point_id(x, y)
 			astar.add_point(point_id, Vector2(x, y))
 
-	# Connect adjacent cells (8-directional movement)
+	# Connect adjacent cells (4-directional movement)
 	for x in range(grid_width):
 		for y in range(grid_height):
 			_connect_neighbors(x, y)
