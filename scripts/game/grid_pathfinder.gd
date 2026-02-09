@@ -73,3 +73,27 @@ func _get_point_id(x: int, y: int) -> int:
 
 func _is_valid_cell(x: int, y: int) -> bool:
 	return x >= 0 and x < grid_width and y >= 0 and y < grid_height
+
+
+## Disable/enable a specific point in the pathfinding grid.
+## Disabled points are treated as obstacles.
+func set_point_disabled(x: int, y: int, disabled: bool) -> void:
+	var point_id := _get_point_id(x, y)
+	if astar.has_point(point_id):
+		astar.set_point_disabled(point_id, disabled)
+
+
+## Apply blocking rules via a callable that returns true if a tile is blocked.
+## Call this before find_path() to configure which tiles are blocked.
+func apply_blocking_rules(blocking_check: Callable) -> void:
+	# Reset all points to enabled first
+	for x in range(grid_width):
+		for y in range(grid_height):
+			var point_id := _get_point_id(x, y)
+			astar.set_point_disabled(point_id, false)
+
+	# Apply blocking rules
+	for x in range(grid_width):
+		for y in range(grid_height):
+			if blocking_check.call(Vector2i(x, y)):
+				set_point_disabled(x, y, true)
