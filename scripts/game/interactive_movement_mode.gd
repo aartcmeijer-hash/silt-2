@@ -162,7 +162,7 @@ func _input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var mouse_pos := event.position
+		var mouse_pos := _subviewport.get_mouse_position() if _subviewport else event.position
 		var ray_origin := _camera.project_ray_origin(mouse_pos)
 		var ray_direction := _camera.project_ray_normal(mouse_pos)
 
