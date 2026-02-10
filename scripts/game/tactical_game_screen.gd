@@ -87,6 +87,8 @@ func _input(event: InputEvent) -> void:
 		if not world_3d:
 			return
 		var space_state := world_3d.direct_space_state
+		if not space_state:
+			return
 		var query := PhysicsRayQueryParameters3D.create(
 			ray_origin, ray_origin + ray_dir * 1000.0
 		)

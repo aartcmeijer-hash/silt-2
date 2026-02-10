@@ -50,6 +50,7 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="VBoxContainer/HBoxContainer/SubViewportContainer"]
 handle_input_events = false
+own_world_3d = true
 size = Vector2i(1024, 600)
 render_target_update_mode = 4
 
