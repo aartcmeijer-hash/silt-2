@@ -1,7 +1,7 @@
 # Player Turn System Design
 
 **Date:** 2026-02-09
-**Status:** Design Complete, Ready for Implementation
+**Status:** Implemented (2026-02-10)
 
 ## Overview
 
@@ -338,3 +338,30 @@ Modified files:
 - Undo/redo action history
 - Animation system for movements and attacks
 - Status effects and buffs
+
+---
+
+## Implementation Notes (Deviations from Design)
+
+### GridPathfinder Reuse
+
+`MovementCalculator.find_path()` delegates to the existing `GridPathfinder` class rather than implementing A* directly. `GridPathfinder` was extended with `set_point_disabled()` and `apply_blocking_rules(Callable)` to support dynamic blocking checks. This avoids code duplication.
+
+### SubViewport Coordinate Handling
+
+The 3D world renders in a `SubViewport` with `handle_input_events = false`. This required:
+- `InteractiveMovementMode` stores a `SubViewport` reference and uses `subviewport.get_mouse_position()` instead of `event.position` for accurate cursor-to-grid projection.
+- `SurvivorActionMenu` converts 3D survivor positions to screen space via `SubViewportContainer.get_global_rect()` scaling rather than `camera.unproject_position()` alone.
+- Entity click raycasting in `tactical_game_screen.gd` converts mouse position to SubViewport space before projecting rays against `subviewport.world_3d.direct_space_state`.
+
+### Blocking Rules
+
+The design specified "monsters block movement, survivors don't". During implementation, the blocking rule was changed so that **other survivors also block** (the moving survivor does not block itself). This prevents multiple survivors from stacking on the same tile.
+
+### Option B for Click Detection (Raycast)
+
+The design offered Option A (Area3D per entity) or Option B (raycast from camera). Option B was implemented. `entity_placeholder.tscn` was given a `StaticBody3D` + `CapsuleShape3D` for the raycast to detect, rather than an `Area3D`.
+
+### Smooth Movement Animation
+
+Movement uses a 0.3-second tween (`EASE_IN_OUT`, `TRANS_QUAD`) rather than instant position assignment. An `_is_transitioning` flag blocks new survivor selections during the animation.
