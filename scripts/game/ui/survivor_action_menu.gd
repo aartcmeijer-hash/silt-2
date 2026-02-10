@@ -50,7 +50,9 @@ func _process(_delta: float) -> void:
 		var scale := container_rect.size / subviewport_size
 		var screen_pos := container_rect.position + subviewport_pos * scale
 		# Convert from global screen position to local position within parent
-		position = screen_pos - get_parent_control().global_position + Vector2(20, -50)
+		var parent_ctrl := get_parent_control()
+		if parent_ctrl:
+			position = screen_pos - parent_ctrl.global_position + Vector2(20, -50)
 	elif _camera and is_inside_tree():
 		# Fallback: no container reference, use SubViewport coords directly
 		var screen_pos := _camera.unproject_position(_target_3d_position)

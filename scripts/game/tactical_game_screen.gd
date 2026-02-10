@@ -45,10 +45,10 @@ func _ready() -> void:
 
 	player_turn_controller = PlayerTurnController.new()
 	add_child(player_turn_controller)
-	player_turn_controller.setup(grid, entities, turn_state, camera)
-	player_turn_controller.all_survivors_complete.connect(_on_all_survivors_complete)
 	player_turn_controller.subviewport_container = subviewport_container
 	player_turn_controller.subviewport = subviewport
+	player_turn_controller.setup(grid, entities, turn_state, camera)
+	player_turn_controller.all_survivors_complete.connect(_on_all_survivors_complete)
 
 	_update_ui()
 
@@ -188,7 +188,7 @@ func _on_monster_turn_pressed() -> void:
 func _on_all_survivors_complete() -> void:
 	turn_state.set_turn(TurnState.Turn.MONSTER)
 	tactical_ui.set_disabled(true)
-	await monster_ai.execute_monster_turn()
+	monster_ai.execute_monster_turn()
 
 
 func _on_monster_ai_completed() -> void:
