@@ -190,6 +190,9 @@ func _on_move_pressed() -> void:
 func _on_movement_completed(destination: Vector2i) -> void:
 	var moving_id := active_survivor_id
 	if moving_id == "":
+		if movement_mode:
+			movement_mode.queue_free()
+			movement_mode = null
 		return
 
 	var state = survivor_states[moving_id]
