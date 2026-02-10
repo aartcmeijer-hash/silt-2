@@ -83,7 +83,10 @@ func _input(event: InputEvent) -> void:
 		# Raycast in SubViewport world
 		var ray_origin := camera.project_ray_origin(sv_mouse_pos)
 		var ray_dir := camera.project_ray_normal(sv_mouse_pos)
-		var space_state := subviewport.world_3d.direct_space_state
+		var world_3d := subviewport.get_world_3d()
+		if not world_3d:
+			return
+		var space_state := world_3d.direct_space_state
 		var query := PhysicsRayQueryParameters3D.create(
 			ray_origin, ray_origin + ray_dir * 1000.0
 		)
