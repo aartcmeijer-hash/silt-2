@@ -18,6 +18,8 @@ var _camera: Camera3D
 var _valid_tile_material: StandardMaterial3D
 var _path_preview_material: StandardMaterial3D
 
+var _last_hovered_tile: Vector2i = Vector2i(-1, -1)
+
 
 func _ready() -> void:
 	_setup_materials()
@@ -57,7 +59,9 @@ func start(
 func cleanup() -> void:
 	_clear_highlights()
 	_clear_path_preview()
+	_last_hovered_tile = Vector2i(-1, -1)
 	set_process_input(false)
+	set_process(false)
 
 
 func _create_tile_highlights() -> void:
@@ -119,6 +123,9 @@ func _process(_delta: float) -> void:
 	var ray_direction := _camera.project_ray_normal(mouse_pos)
 
 	# Raycast to grid plane (y=0)
+	if abs(ray_direction.y) < 0.001:
+		_clear_path_preview()
+		return
 	var t := -ray_origin.y / ray_direction.y
 	if t < 0:
 		_clear_path_preview()
@@ -129,9 +136,13 @@ func _process(_delta: float) -> void:
 
 	# Show path preview if hovering over valid tile
 	if grid_pos in valid_tiles:
-		_show_path_preview(grid_pos)
+		if grid_pos != _last_hovered_tile:
+			_last_hovered_tile = grid_pos
+			_show_path_preview(grid_pos)
 	else:
-		_clear_path_preview()
+		if _last_hovered_tile != Vector2i(-1, -1):
+			_last_hovered_tile = Vector2i(-1, -1)
+			_clear_path_preview()
 
 
 func _input(event: InputEvent) -> void:
@@ -152,6 +163,8 @@ func _input(event: InputEvent) -> void:
 		var ray_origin := _camera.project_ray_origin(mouse_pos)
 		var ray_direction := _camera.project_ray_normal(mouse_pos)
 
+		if abs(ray_direction.y) < 0.001:
+			return
 		var t := -ray_origin.y / ray_direction.y
 		if t < 0:
 			return
