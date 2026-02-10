@@ -191,7 +191,7 @@ func _on_monster_turn_pressed() -> void:
 func _on_all_survivors_complete() -> void:
 	turn_state.set_turn(TurnState.Turn.MONSTER)
 	tactical_ui.set_disabled(true)
-	monster_ai.execute_monster_turn()
+	await monster_ai.execute_monster_turn()
 
 
 func _on_monster_ai_completed() -> void:
