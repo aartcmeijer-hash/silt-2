@@ -17,6 +17,10 @@ var survivor_states: Dictionary = {}  # entity_id -> SurvivorState
 var active_survivor_id: String = ""
 var _is_transitioning: bool = false
 
+
+func _set_transitioning(value: bool) -> void:
+	_is_transitioning = value
+
 var action_menu: SurvivorActionMenu = null
 var movement_mode: InteractiveMovementMode = null
 
@@ -192,13 +196,13 @@ func _on_movement_completed(destination: Vector2i) -> void:
 	var entity: EntityPlaceholder = state.entity_node
 
 	# Move entity with tween
-	_is_transitioning = true
+	_set_transitioning(true)
 	var tween := create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.tween_property(entity, "position", grid.grid_to_world(destination.x, destination.y), 0.3)
 	await tween.finished
-	_is_transitioning = false
+	_set_transitioning(false)
 
 	# Guard: survivor may have been deselected or switched during animation
 	if not moving_id in survivor_states:
