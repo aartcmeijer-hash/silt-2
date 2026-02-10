@@ -102,18 +102,18 @@ func _handle_survivor_switch(new_entity_id: String) -> void:
 
 
 func _show_switch_confirmation(new_entity_id: String) -> void:
-	# Create simple confirmation dialog
 	var dialog := AcceptDialog.new()
 	dialog.dialog_text = "Survivor still has actions available. End their turn?"
 	dialog.ok_button_text = "Yes"
-
-	# Add Cancel button
 	dialog.add_cancel_button("No")
 
+	var survivor_to_complete := active_survivor_id  # Fix 3: capture by value
 	dialog.confirmed.connect(func():
-		_complete_survivor_turn(active_survivor_id)
+		_complete_survivor_turn(survivor_to_complete)
 		select_survivor(new_entity_id)
+		dialog.queue_free()
 	)
+	dialog.canceled.connect(func(): dialog.queue_free())
 
 	add_child(dialog)
 	dialog.popup_centered()
@@ -167,8 +167,9 @@ func _on_move_pressed() -> void:
 	movement_mode = InteractiveMovementMode.new()
 	add_child(movement_mode)
 
+	var moving_entity_id := active_survivor_id
 	var blocking_check := func(tile: Vector2i) -> bool:
-		return _is_tile_blocked_by_monster(tile)
+		return _is_tile_blocked(tile, moving_entity_id)
 
 	movement_mode.movement_completed.connect(_on_movement_completed)
 	movement_mode.movement_cancelled.connect(_on_movement_cancelled)
@@ -176,10 +177,11 @@ func _on_move_pressed() -> void:
 
 
 func _on_movement_completed(destination: Vector2i) -> void:
-	if active_survivor_id == "":
+	var moving_id := active_survivor_id
+	if moving_id == "":
 		return
 
-	var state = survivor_states[active_survivor_id]
+	var state = survivor_states[moving_id]
 	var entity: EntityPlaceholder = state.entity_node
 
 	# Move entity with tween
@@ -189,14 +191,19 @@ func _on_movement_completed(destination: Vector2i) -> void:
 	tween.tween_property(entity, "position", grid.grid_to_world(destination.x, destination.y), 0.3)
 	await tween.finished
 
+	# Guard: survivor may have been deselected or switched during animation
+	if not moving_id in survivor_states:
+		return
+
 	# Update state
 	state.has_moved = true
 
-	# Update selection visuals
-	_update_selection_visuals(entity.position)
+	# Update selection visuals only if this survivor is still active
+	if active_survivor_id == moving_id:
+		_update_selection_visuals(entity.position)
 
 	# Show menu again and update buttons
-	if action_menu:
+	if action_menu and active_survivor_id == moving_id:
 		action_menu.setup(camera, entity.position)
 		action_menu.update_button_states(state.has_moved, state.has_activated)
 		action_menu.show()
@@ -207,7 +214,7 @@ func _on_movement_completed(destination: Vector2i) -> void:
 		movement_mode = null
 
 	# Check if turn complete
-	_check_auto_complete_turn(active_survivor_id)
+	_check_auto_complete_turn(moving_id)
 
 
 func _on_movement_cancelled() -> void:
@@ -276,10 +283,16 @@ func _check_all_survivors_complete() -> bool:
 	return true
 
 
-func _is_tile_blocked_by_monster(tile: Vector2i) -> bool:
+func _is_tile_blocked(tile: Vector2i, moving_entity_id: String) -> bool:
 	for entity_id in entities:
 		var entity: EntityPlaceholder = entities[entity_id]
+		# Monsters always block
 		if entity.entity_type == EntityPlaceholder.EntityType.MONSTER:
+			var entity_grid_pos := grid.world_to_grid(entity.position)
+			if entity_grid_pos == tile:
+				return true
+		# Other survivors block (but not the moving survivor itself)
+		if entity.entity_type == EntityPlaceholder.EntityType.SURVIVOR and entity_id != moving_entity_id:
 			var entity_grid_pos := grid.world_to_grid(entity.position)
 			if entity_grid_pos == tile:
 				return true
