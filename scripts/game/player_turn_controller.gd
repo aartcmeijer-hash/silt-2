@@ -15,6 +15,7 @@ var subviewport_container: SubViewportContainer = null
 
 var survivor_states: Dictionary = {}  # entity_id -> SurvivorState
 var active_survivor_id: String = ""
+var _is_transitioning: bool = false
 
 var action_menu: SurvivorActionMenu = null
 var movement_mode: InteractiveMovementMode = null
@@ -71,6 +72,10 @@ func reset_for_new_turn() -> void:
 
 
 func on_entity_clicked(entity_id: String) -> void:
+	# Ignore during transitions (e.g. movement animation)
+	if _is_transitioning:
+		return
+
 	# Ignore if not player turn
 	if not turn_state.is_player_turn():
 		return
@@ -187,11 +192,13 @@ func _on_movement_completed(destination: Vector2i) -> void:
 	var entity: EntityPlaceholder = state.entity_node
 
 	# Move entity with tween
+	_is_transitioning = true
 	var tween := create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.tween_property(entity, "position", grid.grid_to_world(destination.x, destination.y), 0.3)
 	await tween.finished
+	_is_transitioning = false
 
 	# Guard: survivor may have been deselected or switched during animation
 	if not moving_id in survivor_states:

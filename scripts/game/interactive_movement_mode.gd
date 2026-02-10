@@ -53,6 +53,11 @@ func start(
 	# Calculate valid tiles
 	valid_tiles = MovementCalculator.calculate_valid_tiles(grid, from, range, blocking_check)
 
+	# If no valid moves (surrounded), cancel immediately
+	if valid_tiles.is_empty():
+		movement_cancelled.emit()
+		return
+
 	# Create visual indicators
 	_create_tile_highlights()
 

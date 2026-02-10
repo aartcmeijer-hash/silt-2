@@ -58,10 +58,13 @@ func _input(event: InputEvent) -> void:
 	if is_rotating:
 		return
 
-	if event.is_action_pressed("rotate_left"):
+	# Block camera rotation during movement mode
+	var in_movement_mode := player_turn_controller and player_turn_controller.movement_mode != null
+
+	if event.is_action_pressed("rotate_left") and not in_movement_mode:
 		rotate_camera(-90)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("rotate_right"):
+	elif event.is_action_pressed("rotate_right") and not in_movement_mode:
 		rotate_camera(90)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
