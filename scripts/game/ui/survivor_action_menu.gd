@@ -12,6 +12,7 @@ signal end_turn_pressed()
 
 var _target_3d_position: Vector3 = Vector3.ZERO
 var _camera: Camera3D = null
+var _subviewport_container: SubViewportContainer = null
 
 
 func _ready() -> void:
@@ -26,9 +27,10 @@ func _on_visibility_changed() -> void:
 	set_process(is_visible_in_tree() and _camera != null)
 
 
-func setup(camera: Camera3D, position_3d: Vector3) -> void:
+func setup(camera: Camera3D, position_3d: Vector3, subviewport_container: SubViewportContainer = null) -> void:
 	_camera = camera
 	_target_3d_position = position_3d
+	_subviewport_container = subviewport_container
 	set_process(_camera != null)
 
 
@@ -39,9 +41,20 @@ func update_button_states(has_moved: bool, has_activated: bool) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _camera and is_inside_tree():
+	if _camera and is_inside_tree() and _subviewport_container:
+		# camera.unproject_position returns SubViewport-local coordinates
+		var subviewport_pos := _camera.unproject_position(_target_3d_position)
+		# Scale from SubViewport size to the container's actual rendered size
+		var subviewport_size := Vector2(_camera.get_viewport().size)
+		var container_rect := _subviewport_container.get_global_rect()
+		var scale := container_rect.size / subviewport_size
+		var screen_pos := container_rect.position + subviewport_pos * scale
+		# Convert from global screen position to local position within parent
+		position = screen_pos - get_parent_control().global_position + Vector2(20, -50)
+	elif _camera and is_inside_tree():
+		# Fallback: no container reference, use SubViewport coords directly
 		var screen_pos := _camera.unproject_position(_target_3d_position)
-		position = screen_pos + Vector2(20, -50)  # Offset from entity
+		position = screen_pos + Vector2(20, -50)
 
 
 func _on_move_pressed() -> void:

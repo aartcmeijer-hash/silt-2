@@ -11,9 +11,12 @@ const ENTITY_PLACEHOLDER_SCENE := preload("res://scenes/game/entity_placeholder.
 @onready var monster_deck_ui: Control = $VBoxContainer/MonsterDeckUI
 @onready var pause_menu: Control = $PauseMenu
 @onready var resume_button: Button = $PauseMenu/VBoxContainer/ResumeButton
+@onready var subviewport: SubViewport = $VBoxContainer/HBoxContainer/SubViewportContainer/SubViewport
+@onready var subviewport_container: SubViewportContainer = $VBoxContainer/HBoxContainer/SubViewportContainer
 
 var turn_state: TurnState
 var monster_ai: MonsterAIController
+var player_turn_controller: PlayerTurnController
 var entities: Dictionary = {}
 var is_paused: bool = false
 
@@ -39,6 +42,14 @@ func _ready() -> void:
 	_setup_camera()
 	pause_menu.hide()
 	_spawn_initial_entities()
+
+	player_turn_controller = PlayerTurnController.new()
+	add_child(player_turn_controller)
+	player_turn_controller.setup(grid, entities, turn_state, camera)
+	player_turn_controller.all_survivors_complete.connect(_on_all_survivors_complete)
+	player_turn_controller.subviewport_container = subviewport_container
+	player_turn_controller.subviewport = subviewport
+
 	_update_ui()
 
 
@@ -56,6 +67,31 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		toggle_pause()
 		get_viewport().set_input_as_handled()
+
+	# Entity click detection for survivor selection (player turn only)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT \
+			and event.pressed and not is_rotating and turn_state.is_player_turn():
+		# Convert mouse pos to SubViewport space
+		var local_pos := subviewport_container.get_local_mouse_position()
+		var sv_size := Vector2(subviewport.size)
+		var container_size := subviewport_container.size
+		var sv_mouse_pos := local_pos / container_size * sv_size
+
+		# Raycast in SubViewport world
+		var ray_origin := camera.project_ray_origin(sv_mouse_pos)
+		var ray_dir := camera.project_ray_normal(sv_mouse_pos)
+		var space_state := subviewport.world_3d.direct_space_state
+		var query := PhysicsRayQueryParameters3D.create(
+			ray_origin, ray_origin + ray_dir * 1000.0
+		)
+		var result := space_state.intersect_ray(query)
+		if result:
+			for entity_id in entities:
+				var entity: Node3D = entities[entity_id]
+				if _is_ancestor_of(result.collider, entity):
+					player_turn_controller.on_entity_clicked(entity_id)
+					get_viewport().set_input_as_handled()
+					return
 
 
 func _spawn_initial_entities() -> void:
@@ -149,7 +185,14 @@ func _on_monster_turn_pressed() -> void:
 	await monster_ai.execute_monster_turn()
 
 
+func _on_all_survivors_complete() -> void:
+	turn_state.set_turn(TurnState.Turn.MONSTER)
+	tactical_ui.set_disabled(true)
+	await monster_ai.execute_monster_turn()
+
+
 func _on_monster_ai_completed() -> void:
+	player_turn_controller.reset_for_new_turn()
 	tactical_ui.set_disabled(false)
 	turn_state.set_turn(TurnState.Turn.PLAYER)
 
@@ -182,6 +225,15 @@ func _on_resume_pressed() -> void:
 func _on_main_menu_pressed() -> void:
 	get_tree().paused = false
 	GameManager.return_to_menu()
+
+
+func _is_ancestor_of(node: Node, potential_ancestor: Node) -> bool:
+	var current := node
+	while current:
+		if current == potential_ancestor:
+			return true
+		current = current.get_parent()
+	return false
 
 
 func _initialize_monster_deck(monster_id: String) -> void:

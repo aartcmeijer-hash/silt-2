@@ -19,6 +19,7 @@ var _valid_tile_material: StandardMaterial3D
 var _path_preview_material: StandardMaterial3D
 
 var _last_hovered_tile: Vector2i = Vector2i(-1, -1)
+var _subviewport: SubViewport
 
 
 func _ready() -> void:
@@ -40,10 +41,12 @@ func start(
 	p_camera: Camera3D,
 	from: Vector2i,
 	range: int,
-	p_blocking_check: Callable
+	p_blocking_check: Callable,
+	p_subviewport: SubViewport = null
 ) -> void:
 	grid = p_grid
 	_camera = p_camera
+	_subviewport = p_subviewport
 	current_position = from
 	blocking_check = p_blocking_check
 
@@ -118,7 +121,7 @@ func _process(_delta: float) -> void:
 	if not _camera:
 		return
 
-	var mouse_pos := get_viewport().get_mouse_position()
+	var mouse_pos := _subviewport.get_mouse_position() if _subviewport else get_viewport().get_mouse_position()
 	var ray_origin := _camera.project_ray_origin(mouse_pos)
 	var ray_direction := _camera.project_ray_normal(mouse_pos)
 

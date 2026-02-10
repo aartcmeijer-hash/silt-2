@@ -10,6 +10,8 @@ var grid: IsometricGrid
 var entities: Dictionary
 var turn_state: TurnState
 var camera: Camera3D
+var subviewport: SubViewport = null
+var subviewport_container: SubViewportContainer = null
 
 var survivor_states: Dictionary = {}  # entity_id -> SurvivorState
 var active_survivor_id: String = ""
@@ -133,7 +135,7 @@ func select_survivor(survivor_id: String) -> void:
 
 	action_menu = SURVIVOR_ACTION_MENU_SCENE.instantiate()
 	add_child(action_menu)
-	action_menu.setup(camera, entity.position)
+	action_menu.setup(camera, entity.position, subviewport_container)
 	action_menu.update_button_states(state.has_moved, state.has_activated)
 
 	action_menu.move_pressed.connect(_on_move_pressed)
@@ -173,7 +175,7 @@ func _on_move_pressed() -> void:
 
 	movement_mode.movement_completed.connect(_on_movement_completed)
 	movement_mode.movement_cancelled.connect(_on_movement_cancelled)
-	movement_mode.start(grid, camera, grid_pos, state.data.movement_range, blocking_check)
+	movement_mode.start(grid, camera, grid_pos, state.data.movement_range, blocking_check, subviewport)
 
 
 func _on_movement_completed(destination: Vector2i) -> void:
@@ -204,7 +206,7 @@ func _on_movement_completed(destination: Vector2i) -> void:
 
 	# Show menu again and update buttons
 	if action_menu and active_survivor_id == moving_id:
-		action_menu.setup(camera, entity.position)
+		action_menu.setup(camera, entity.position, subviewport_container)
 		action_menu.update_button_states(state.has_moved, state.has_activated)
 		action_menu.show()
 
