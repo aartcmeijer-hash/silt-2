@@ -15,11 +15,7 @@ var subviewport_container: SubViewportContainer = null
 
 var survivor_states: Dictionary = {}  # entity_id -> SurvivorState
 var active_survivor_id: String = ""
-var _is_transitioning: bool = false
-
-
-func _set_transitioning(value: bool) -> void:
-	_is_transitioning = value
+var _is_transitioning: bool = false: set = _set_transitioning
 
 var action_menu: SurvivorActionMenu = null
 var movement_mode: InteractiveMovementMode = null
@@ -27,6 +23,10 @@ var movement_mode: InteractiveMovementMode = null
 # Selection visuals
 var _selection_highlight: MeshInstance3D = null
 var _ground_indicator: MeshInstance3D = null
+
+
+func _set_transitioning(value: bool) -> void:
+	_is_transitioning = value
 
 
 func setup(p_grid: IsometricGrid, p_entities: Dictionary, p_turn_state: TurnState, p_camera: Camera3D) -> void:
@@ -231,6 +231,8 @@ func _on_movement_completed(destination: Vector2i) -> void:
 
 
 func _on_movement_cancelled() -> void:
+	_is_transitioning = false
+
 	# Show menu again
 	if action_menu:
 		action_menu.show()
