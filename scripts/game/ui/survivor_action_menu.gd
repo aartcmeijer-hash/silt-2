@@ -18,11 +18,18 @@ func _ready() -> void:
 	move_button.pressed.connect(_on_move_pressed)
 	attack_button.pressed.connect(_on_attack_pressed)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
+	visibility_changed.connect(_on_visibility_changed)
+	set_process(false)
+
+
+func _on_visibility_changed() -> void:
+	set_process(is_visible_in_tree() and _camera != null)
 
 
 func setup(camera: Camera3D, position_3d: Vector3) -> void:
 	_camera = camera
 	_target_3d_position = position_3d
+	set_process(_camera != null)
 
 
 func update_button_states(has_moved: bool, has_activated: bool) -> void:
@@ -32,8 +39,7 @@ func update_button_states(has_moved: bool, has_activated: bool) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _camera:
-		# Convert 3D position to 2D screen space
+	if _camera and is_inside_tree():
 		var screen_pos := _camera.unproject_position(_target_3d_position)
 		position = screen_pos + Vector2(20, -50)  # Offset from entity
 
