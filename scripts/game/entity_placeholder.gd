@@ -35,13 +35,12 @@ func setup(id: String, type: EntityType, display_label: String, color: Color) ->
 
 func _update_visuals() -> void:
 	if body:
-		var material := body.get_surface_override_material(0)
-		if not material or not material is StandardMaterial3D:
-			material = StandardMaterial3D.new()
-			body.set_surface_override_material(0, material)
-		if material is StandardMaterial3D:
-			material.albedo_color = entity_color
-			_original_color = entity_color  # Store the actual entity color
+		# Always create a unique material per instance — .tscn sub-resources are
+		# shared across instances, so we must not reuse the scene's material.
+		var material := StandardMaterial3D.new()
+		material.albedo_color = entity_color
+		body.set_surface_override_material(0, material)
+		_original_color = entity_color
 	if label_3d:
 		label_3d.text = entity_label
 

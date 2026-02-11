@@ -83,16 +83,14 @@ func _input(event: InputEvent) -> void:
 		# Raycast in SubViewport world
 		var ray_origin := camera.project_ray_origin(sv_mouse_pos)
 		var ray_dir := camera.project_ray_normal(sv_mouse_pos)
-		var world_3d := subviewport.get_world_3d()
-		if not world_3d:
-			return
-		var space_state := world_3d.direct_space_state
+		var space_state := camera.get_world_3d().direct_space_state
 		if not space_state:
 			return
 		var query := PhysicsRayQueryParameters3D.create(
 			ray_origin, ray_origin + ray_dir * 1000.0
 		)
 		var result := space_state.intersect_ray(query)
+		print("[click] sv_mouse_pos=", sv_mouse_pos, " ray_origin=", ray_origin.snappedf(0.1), " result=", result)
 		if result:
 			for entity_id in entities:
 				var entity: Node3D = entities[entity_id]
