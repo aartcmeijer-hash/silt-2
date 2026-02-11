@@ -58,13 +58,10 @@ func _input(event: InputEvent) -> void:
 	if is_rotating:
 		return
 
-	# Block camera rotation during movement mode
-	var in_movement_mode := player_turn_controller and player_turn_controller.movement_mode != null
-
-	if event.is_action_pressed("rotate_left") and not in_movement_mode:
+	if event.is_action_pressed("rotate_left"):
 		rotate_camera(-90)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("rotate_right") and not in_movement_mode:
+	elif event.is_action_pressed("rotate_right"):
 		rotate_camera(90)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
@@ -90,7 +87,6 @@ func _input(event: InputEvent) -> void:
 			ray_origin, ray_origin + ray_dir * 1000.0
 		)
 		var result := space_state.intersect_ray(query)
-		print("[click] sv_mouse_pos=", sv_mouse_pos, " ray_origin=", ray_origin.snappedf(0.1), " result=", result)
 		if result:
 			for entity_id in entities:
 				var entity: Node3D = entities[entity_id]
