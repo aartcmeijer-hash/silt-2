@@ -77,23 +77,20 @@ func _input(event: InputEvent) -> void:
 		var container_size := subviewport_container.size
 		var sv_mouse_pos := local_pos / container_size * sv_size
 
-		# Raycast in SubViewport world
-		var ray_origin := camera.project_ray_origin(sv_mouse_pos)
-		var ray_dir := camera.project_ray_normal(sv_mouse_pos)
-		var space_state := camera.get_world_3d().direct_space_state
-		if not space_state:
-			return
-		var query := PhysicsRayQueryParameters3D.create(
-			ray_origin, ray_origin + ray_dir * 1000.0
-		)
-		var result := space_state.intersect_ray(query)
-		if result:
-			for entity_id in entities:
-				var entity: Node3D = entities[entity_id]
-				if _is_ancestor_of(result.collider, entity):
-					player_turn_controller.on_entity_clicked(entity_id)
-					get_viewport().set_input_as_handled()
-					return
+		# Find the entity whose projected screen position is closest to the click.
+		# Using screen-space projection avoids physics body sync issues entirely.
+		var closest_id := ""
+		var closest_dist_sq := 50.0 * 50.0  # 50-pixel threshold
+		for entity_id in entities:
+			var entity: Node3D = entities[entity_id]
+			var screen_pos := camera.unproject_position(entity.global_position)
+			var dist_sq := (screen_pos - sv_mouse_pos).length_squared()
+			if dist_sq < closest_dist_sq:
+				closest_dist_sq = dist_sq
+				closest_id = entity_id
+		if closest_id != "":
+			player_turn_controller.on_entity_clicked(closest_id)
+			get_viewport().set_input_as_handled()
 
 
 func _spawn_initial_entities() -> void:
@@ -200,6 +197,7 @@ func _on_monster_ai_completed() -> void:
 
 
 func _on_end_turn_pressed() -> void:
+	player_turn_controller.reset_for_new_turn()
 	turn_state.set_turn(TurnState.Turn.PLAYER)
 
 
