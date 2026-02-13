@@ -154,6 +154,9 @@ func select_survivor(survivor_id: String) -> void:
 	add_child(action_menu)
 	action_menu.setup(camera, entity.position, subviewport_container)
 	action_menu.update_button_states(state.has_moved, state.has_activated)
+	var data: SurvivorData = state.data
+	if data:
+		action_menu.show_wounds(data)
 
 	action_menu.move_pressed.connect(_on_move_pressed)
 	action_menu.attack_pressed.connect(_on_attack_pressed)

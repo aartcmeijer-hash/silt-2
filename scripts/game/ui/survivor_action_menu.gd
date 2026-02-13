@@ -13,6 +13,7 @@ signal end_turn_pressed()
 var _target_3d_position: Vector3 = Vector3.ZERO
 var _camera: Camera3D = null
 var _subviewport_container: SubViewportContainer = null
+var _wound_label: Label = null
 
 
 func _ready() -> void:
@@ -69,3 +70,24 @@ func _on_attack_pressed() -> void:
 
 func _on_end_turn_pressed() -> void:
 	end_turn_pressed.emit()
+
+
+func show_wounds(survivor_data: SurvivorData) -> void:
+	if not _wound_label:
+		_wound_label = Label.new()
+		_wound_label.name = "WoundPanel"
+		$VBoxContainer.add_child(_wound_label)
+
+	var lines: Array[String] = []
+
+	if survivor_data.is_knocked_down:
+		lines.append("[KNOCKED DOWN]")
+
+	for part in ["head", "arms", "body", "waist", "legs"]:
+		var wounds: int = survivor_data.body_part_wounds[part]
+		var slot1: String = "●" if wounds >= 1 else "○"
+		var slot2: String = "●" if wounds >= 2 else "○"
+		var severe: String = "!" if wounds > 2 else ""
+		lines.append("%s %s %s%s" % [part.to_upper().lpad(5), slot1, slot2, severe])
+
+	_wound_label.text = "\n".join(lines)
