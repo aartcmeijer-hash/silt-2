@@ -4,6 +4,9 @@ extends Node
 ## Handles targeting, pathfinding, movement animation, and survivor displacement.
 
 signal turn_completed
+signal attack_log_updated(lines: Array)
+
+var _attack_log: Array = []
 
 var grid: IsometricGrid
 var entities: Dictionary
@@ -250,6 +253,8 @@ func _execute_card_action(monster: EntityPlaceholder, card: MonsterActionCard, t
 	match card.action_type:
 		MonsterActionCard.ActionType.MOVE_TOWARDS:
 			await _execute_move_action(monster, target_id, card.max_distance)
+		MonsterActionCard.ActionType.ATTACK:
+			await _execute_attack_action(monster, card, target_id)
 		_:
 			push_warning("Action type not yet implemented: %d" % card.action_type)
 
@@ -270,3 +275,76 @@ func _execute_move_action(monster: EntityPlaceholder, target_id: String, max_dis
 
 	path.remove_at(0)
 	await _animate_movement(monster, path)
+
+
+func _execute_attack_action(monster: EntityPlaceholder, card: MonsterActionCard, target_id: String) -> void:
+	if not entities.has(target_id):
+		return
+
+	var target: EntityPlaceholder = entities[target_id]
+	var survivor_data: SurvivorData = target.survivor_data
+	if not survivor_data:
+		push_warning("MonsterAIController: target %s has no SurvivorData" % target_id)
+		return
+
+	var monster_data: MonsterData = monster.monster_data
+	var accuracy: int = monster_data.accuracy if monster_data else 0
+
+	# Hit rolls
+	_attack_log.clear()
+	_log("%s attacks %s!" % [monster.entity_label, target_id])
+	var hits: int = 0
+	var roll_results: Array[int] = []
+	for i in range(card.dice_count):
+		var roll: int = randi_range(1, 10)
+		roll_results.append(roll)
+		if roll + accuracy > survivor_data.evasion:
+			hits += 1
+
+	var rolls_str: String = ", ".join(roll_results.map(func(r): return str(r)))
+	_log("  Rolls: %s -> %d hit(s) (evasion %d)" % [rolls_str, hits, survivor_data.evasion])
+
+	if hits == 0:
+		_log("  Miss!")
+		attack_log_updated.emit(_attack_log.duplicate())
+		return
+
+	# Per-hit: location and damage
+	for i in range(hits):
+		var location: String = _roll_hit_location()
+		var prev_wounds: int = survivor_data.body_part_wounds[location]
+		survivor_data.body_part_wounds[location] += card.damage
+		var new_wounds: int = survivor_data.body_part_wounds[location]
+
+		var wound_str: String = "%s -- wound %d" % [location.to_upper(), new_wounds]
+
+		if prev_wounds < 2 and new_wounds >= 2:
+			survivor_data.is_knocked_down = true
+			wound_str += " -> KNOCKED DOWN"
+		elif prev_wounds >= 2:
+			_trigger_severe_injury(target_id, location)
+			wound_str += " -> SEVERE INJURY"
+
+		_log("  Hit %d: %s" % [i + 1, wound_str])
+
+	attack_log_updated.emit(_attack_log.duplicate())
+
+
+func _roll_hit_location() -> String:
+	var roll: int = randi_range(1, 10)
+	match roll:
+		1, 2: return "head"
+		3, 4: return "arms"
+		5, 6: return "body"
+		7, 8: return "waist"
+		_: return "legs"
+
+
+func _trigger_severe_injury(target_id: String, body_part: String) -> void:
+	# Stub: severe injury table not yet implemented
+	push_warning("SEVERE INJURY triggered on %s (%s) -- not yet implemented" % [target_id, body_part])
+
+
+func _log(line: String) -> void:
+	print(line)
+	_attack_log.append(line)
