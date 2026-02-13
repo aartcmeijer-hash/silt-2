@@ -19,6 +19,7 @@ var monster_ai: MonsterAIController
 var player_turn_controller: PlayerTurnController
 var entities: Dictionary = {}
 var is_paused: bool = false
+var _attack_log_label: RichTextLabel = null
 
 # Camera rotation state
 var camera_pivot: Node3D
@@ -34,6 +35,14 @@ func _ready() -> void:
 	monster_ai = MonsterAIController.new(grid, entities)
 	add_child(monster_ai)
 	monster_ai.turn_completed.connect(_on_monster_ai_completed)
+	_attack_log_label = RichTextLabel.new()
+	_attack_log_label.name = "AttackLog"
+	_attack_log_label.custom_minimum_size = Vector2(300, 120)
+	_attack_log_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_attack_log_label.add_theme_color_override("default_color", Color.WHITE)
+	_attack_log_label.scroll_active = false
+	tactical_ui.add_child(_attack_log_label)
+	monster_ai.attack_log_updated.connect(_on_attack_log_updated)
 	monster_ai.deck_ui = monster_deck_ui
 
 	tactical_ui.monster_turn_pressed.connect(_on_monster_turn_pressed)
@@ -201,8 +210,15 @@ func _on_end_turn_pressed() -> void:
 	turn_state.set_turn(TurnState.Turn.PLAYER)
 
 
-func _on_turn_changed(_new_turn: TurnState.Turn) -> void:
+func _on_turn_changed(new_turn: TurnState.Turn) -> void:
+	if new_turn == TurnState.Turn.PLAYER and _attack_log_label:
+		_attack_log_label.text = ""
 	_update_ui()
+
+
+func _on_attack_log_updated(lines: Array) -> void:
+	if _attack_log_label:
+		_attack_log_label.text = "\n".join(lines)
 
 
 func _update_ui() -> void:
