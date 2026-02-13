@@ -212,6 +212,12 @@ func initialize_monster_deck(monster_id: String, deck_config: MonsterDeckConfig)
 		push_error("MonsterAIController: null deck_config for monster %s" % monster_id)
 		return
 
+	# Initialize monster data if not already set
+	if entities.has(monster_id):
+		var entity: EntityPlaceholder = entities[monster_id]
+		if not entity.monster_data:
+			entity.monster_data = MonsterData.new()
+
 	var deck: MonsterDeck = deck_config.create_deck()
 	monster_decks[monster_id] = deck
 

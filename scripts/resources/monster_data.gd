@@ -3,3 +3,7 @@ extends Resource
 ## Stores monster-level combat stats.
 
 @export var accuracy: int = 0
+
+
+func _init(p_accuracy: int = 0) -> void:
+	accuracy = p_accuracy
