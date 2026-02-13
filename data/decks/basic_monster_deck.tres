@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="MonsterDeckConfig" load_steps=3 format=3 uid="uid://bpv3k2m8ht5dx"]
+[gd_resource type="Resource" script_class="MonsterDeckConfig" load_steps=4 format=3 uid="uid://bpv3k2m8ht5dx"]
 
 [ext_resource type="Script" path="res://scripts/game/cards/monster_deck_config.gd" id="1"]
 [ext_resource type="Resource" path="res://data/cards/move_random_survivor.tres" id="2"]
+[ext_resource type="Resource" path="res://data/cards/attack_random_survivor.tres" id="3"]
 
 [resource]
 script = ExtResource("1")
 deck_name = "Basic Monster"
-cards = Array[Resource]([ExtResource("2")])
-card_counts = Array[int]([10])
+cards = Array[Resource]([ExtResource("2"), ExtResource("3")])
+card_counts = Array[int]([7, 3])

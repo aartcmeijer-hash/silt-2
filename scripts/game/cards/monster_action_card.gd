@@ -19,6 +19,8 @@ enum ActionType {
 @export var targeting_type: TargetingType = TargetingType.RANDOM_SURVIVOR
 @export var action_type: ActionType = ActionType.MOVE_TOWARDS
 @export var max_distance: int = 6
+@export var dice_count: int = 1
+@export var damage: int = 1
 @export_multiline var display_text: String = ""
 
 
@@ -40,7 +42,7 @@ func get_action_description() -> String:
 		ActionType.MOVE_TOWARDS:
 			return "Move up to %d spaces toward target" % max_distance
 		ActionType.ATTACK:
-			return "Attack target"
+			return "Attack: %d dice, %d damage" % [dice_count, damage]
 		ActionType.SPECIAL_ABILITY:
 			return "Use special ability"
 	return "Unknown"

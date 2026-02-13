@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterActionCard" load_steps=2 format=3 uid="uid://drattackrand1"]
+
+[ext_resource type="Script" path="res://scripts/game/cards/monster_action_card.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+card_title = "Feral Strike"
+targeting_type = 0
+action_type = 1
+max_distance = 0
+display_text = "TARGET: Random Survivor
+ACTION: Attack with 2 dice, 1 damage"
+dice_count = 2
+damage = 1
