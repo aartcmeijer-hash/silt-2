@@ -3,6 +3,17 @@ extends Resource
 ## Stores persistent survivor stats.
 
 @export var movement_range: int = 5
+@export var evasion: int = 5
+
+var is_knocked_down: bool = false
+var body_part_wounds: Dictionary = {
+	"head": 0,
+	"arms": 0,
+	"body": 0,
+	"waist": 0,
+	"legs": 0,
+}
+
 
 func _init(p_movement_range: int = 5) -> void:
 	movement_range = p_movement_range
