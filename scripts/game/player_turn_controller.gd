@@ -70,6 +70,14 @@ func reset_for_new_turn() -> void:
 		var entity: EntityPlaceholder = state.entity_node
 		entity.restore_color()
 
+		# Knock-down: survivor skips this entire turn
+		var data: SurvivorData = state.data
+		if data and data.is_knocked_down:
+			data.is_knocked_down = false
+			state.is_turn_complete = true
+			entity.set_greyed_out(true)
+			print("%s is knocked down -- skipping turn" % entity_id)
+
 	# Clear selection
 	if active_survivor_id != "":
 		deselect_survivor()
