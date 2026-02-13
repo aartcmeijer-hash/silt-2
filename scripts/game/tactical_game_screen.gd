@@ -113,6 +113,7 @@ func _spawn_entity(id: String, grid_pos: Vector2i, type: EntityPlaceholder.Entit
 
 	# Initialize deck for monsters
 	if type == EntityPlaceholder.EntityType.MONSTER:
+		entity.monster_data = MonsterData.new()
 		_initialize_monster_deck(id)
 		monster_deck_ui.create_monster_row(id, label)
 

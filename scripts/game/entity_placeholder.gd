@@ -13,6 +13,7 @@ signal clicked()
 
 var entity_id: String = ""
 var survivor_data: SurvivorData = null
+var monster_data: MonsterData = null
 var is_greyed_out: bool = false
 var _original_color: Color = Color.WHITE
 
