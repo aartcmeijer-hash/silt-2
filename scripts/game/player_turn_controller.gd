@@ -126,7 +126,7 @@ func simulate_all_survivors() -> void:
 
 			# Pick valid tile closest to monster
 			var best_tile := survivor_grid_pos
-			var best_tile_dist := nearest_dist
+			var best_tile_dist := nearest_dist + 1
 			for tile in valid_tiles:
 				var d := abs(tile.x - monster_grid_pos.x) + abs(tile.y - monster_grid_pos.y)
 				if d < best_tile_dist:
@@ -146,8 +146,9 @@ func simulate_all_survivors() -> void:
 		state.has_activated = true
 		_complete_survivor_turn(entity_id)
 
-	if log_lines.size() > 0:
-		simulation_log_updated.emit(log_lines)
+	if log_lines.is_empty():
+		log_lines.append("No survivors acted this turn.")
+	simulation_log_updated.emit(log_lines)
 
 func on_entity_clicked(entity_id: String) -> void:
 	# Ignore during transitions (e.g. movement animation)
