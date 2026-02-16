@@ -40,6 +40,8 @@ func _ready() -> void:
 	_attack_log_label.custom_minimum_size = Vector2(400, 150)
 	_attack_log_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_attack_log_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_attack_log_label.offset_bottom = -10
+	_attack_log_label.offset_left = 10
 	_attack_log_label.add_theme_color_override("default_color", Color.WHITE)
 	_attack_log_label.scroll_active = false
 	add_child(_attack_log_label)
@@ -223,8 +225,6 @@ func _on_simulation_log_updated(lines: Array) -> void:
 
 
 func _on_turn_changed(new_turn: TurnState.Turn) -> void:
-	if new_turn == TurnState.Turn.PLAYER and _attack_log_label:
-		_attack_log_label.text = ""
 	_update_ui()
 
 
