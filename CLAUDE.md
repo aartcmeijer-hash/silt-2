@@ -1,5 +1,15 @@
 # CLAUDE.md
 
+## Godot API Gotchas
+
+**`custom_maximum_size` is not available on `RichTextLabel`**
+
+To cap the height of a log label, trim old lines in code instead:
+```gdscript
+if lines.size() > MAX_LINES:
+    lines = lines.slice(lines.size() - MAX_LINES)
+```
+
 ## GDScript Gotchas
 
 **Expression results always need explicit type annotations**
