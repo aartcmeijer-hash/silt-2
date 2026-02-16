@@ -8,6 +8,7 @@ signal card_discarded(card: MonsterActionCard)
 
 var draw_pile: Array[MonsterActionCard] = []
 var discard_pile: Array[MonsterActionCard] = []
+var wound_stack: Array[MonsterActionCard] = []
 
 
 func draw_card() -> MonsterActionCard:
@@ -57,3 +58,19 @@ func get_top_discard() -> MonsterActionCard:
 	if discard_pile.is_empty():
 		return null
 	return discard_pile.back()
+
+
+## Removes one card from the deck as a wound.
+## Shuffles discard into draw first if draw pile is empty.
+## Returns true if the monster has no cards remaining (dead).
+func apply_wound() -> bool:
+	if draw_pile.is_empty() and not discard_pile.is_empty():
+		shuffle_discard_into_deck()
+
+	if draw_pile.is_empty():
+		return true
+
+	var card: MonsterActionCard = draw_pile.pop_front()
+	wound_stack.append(card)
+
+	return draw_pile.is_empty() and discard_pile.is_empty()
