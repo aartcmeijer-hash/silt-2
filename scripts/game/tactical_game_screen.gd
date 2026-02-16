@@ -230,8 +230,8 @@ func _on_turn_changed(new_turn: TurnState.Turn) -> void:
 
 
 func _on_attack_log_updated(lines: Array) -> void:
-	if not lines.is_empty():
-		append_log(lines.back())
+	for line in lines:
+		append_log(line)
 
 const _LOG_MAX_LINES := 20
 
