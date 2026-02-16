@@ -38,7 +38,6 @@ func _ready() -> void:
 	_attack_log_label = RichTextLabel.new()
 	_attack_log_label.name = "AttackLog"
 	_attack_log_label.custom_minimum_size = Vector2(600, 0)
-	_attack_log_label.custom_maximum_size = Vector2(0, get_viewport_rect().size.y / 2.0)
 	_attack_log_label.fit_content = true
 	_attack_log_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_attack_log_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
@@ -234,11 +233,16 @@ func _on_attack_log_updated(lines: Array) -> void:
 	if not lines.is_empty():
 		append_log(lines.back())
 
+const _LOG_MAX_LINES := 20
+
 func append_log(line: String) -> void:
-	if _attack_log_label:
-		if _attack_log_label.text != "":
-			_attack_log_label.text += "\n"
-		_attack_log_label.text += line
+	if not _attack_log_label:
+		return
+	var lines := _attack_log_label.text.split("\n") if _attack_log_label.text != "" else PackedStringArray()
+	lines.append(line)
+	if lines.size() > _LOG_MAX_LINES:
+		lines = lines.slice(lines.size() - _LOG_MAX_LINES)
+	_attack_log_label.text = "\n".join(lines)
 
 
 func _update_ui() -> void:
