@@ -270,8 +270,14 @@ func _execute_move_action(monster: EntityPlaceholder, target_id: String, max_dis
 	# Find path (using card's max_distance instead of hardcoded MAX_MOVE_DISTANCE)
 	var path: Array[Vector2i] = pathfinder.find_path(monster_grid_pos, target_grid_pos, max_distance)
 
+	_attack_log.clear()
 	if path.size() <= 1:
+		_log("%s moves toward %s -- already adjacent" % [monster.entity_label, target_id])
+		attack_log_updated.emit(_attack_log.duplicate())
 		return
+
+	_log("%s moves toward %s (%d steps)" % [monster.entity_label, target_id, path.size() - 1])
+	attack_log_updated.emit(_attack_log.duplicate())
 
 	path.remove_at(0)
 	await _animate_movement(monster, path)
