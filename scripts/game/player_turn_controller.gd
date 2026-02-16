@@ -108,7 +108,7 @@ func simulate_all_survivors() -> void:
 			if other.entity_type != EntityPlaceholder.EntityType.MONSTER:
 				continue
 			var monster_grid_pos := grid.world_to_grid(other.position)
-			var dist := (abs(survivor_grid_pos.x - monster_grid_pos.x)
+			var dist: int = (abs(survivor_grid_pos.x - monster_grid_pos.x)
 					+ abs(survivor_grid_pos.y - monster_grid_pos.y))
 			if dist < nearest_dist:
 				nearest_dist = dist
