@@ -230,8 +230,8 @@ func _on_turn_changed(new_turn: TurnState.Turn) -> void:
 
 
 func _on_attack_log_updated(lines: Array) -> void:
-	if _attack_log_label:
-		_attack_log_label.text = "\n".join(lines)
+	if not lines.is_empty():
+		append_log(lines.back())
 
 func append_log(line: String) -> void:
 	if _attack_log_label:
