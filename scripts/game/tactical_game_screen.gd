@@ -37,7 +37,8 @@ func _ready() -> void:
 	monster_ai.turn_completed.connect(_on_monster_ai_completed)
 	_attack_log_label = RichTextLabel.new()
 	_attack_log_label.name = "AttackLog"
-	_attack_log_label.custom_minimum_size = Vector2(400, 150)
+	_attack_log_label.custom_minimum_size = Vector2(400, 0)
+	_attack_log_label.fit_content = true
 	_attack_log_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_attack_log_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_attack_log_label.offset_bottom = -10
