@@ -86,6 +86,8 @@ func reset_for_new_turn() -> void:
 
 
 func simulate_all_survivors() -> void:
+	if not turn_state.is_player_turn():
+		return
 	var log_lines: Array = []
 
 	for entity_id in survivor_states:
