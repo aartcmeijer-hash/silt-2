@@ -23,6 +23,7 @@ var action_menu: SurvivorActionMenu = null
 var movement_mode: InteractiveMovementMode = null
 var attack_mode: InteractiveAttackMode = null
 var _attack_target_id: String = ""
+var _attack_survivor_id: String = ""
 var monster_ai = null  # Set by TacticalGameScreen after construction
 var _fists: WeaponProfile = WeaponProfile.new(2, 8, 0, 1)
 
@@ -363,7 +364,8 @@ func _on_attack_target_selected(monster_id: String) -> void:
 		attack_mode = null
 
 	_attack_target_id = monster_id
-	var state = survivor_states[active_survivor_id]
+	_attack_survivor_id = active_survivor_id
+	var state = survivor_states[_attack_survivor_id]
 	var survivor_data: SurvivorData = state.data
 
 	# Hit rolls
@@ -372,10 +374,10 @@ func _on_attack_target_selected(monster_id: String) -> void:
 	var roll_details: Array = hit_result.roll_details
 	var rolls_str: String = ", ".join(roll_details.map(func(d: Dictionary) -> String: return str(d.roll)))
 	simulation_log_updated.emit(["[%s] attacks [%s] -- rolls: %s -> %d hit(s)" % [
-		active_survivor_id, monster_id, rolls_str, hits]])
+		_attack_survivor_id, monster_id, rolls_str, hits]])
 
 	if hits == 0:
-		simulation_log_updated.emit(["[%s] -- miss!" % active_survivor_id])
+		simulation_log_updated.emit(["[%s] -- miss!" % _attack_survivor_id])
 		_finish_attack()
 		return
 
@@ -402,7 +404,7 @@ func _on_attack_target_selected(monster_id: String) -> void:
 
 
 func _on_hit_location_card_chosen(card: HitLocationCard) -> void:
-	var state = survivor_states[active_survivor_id]
+	var state = survivor_states[_attack_survivor_id]
 	var survivor_data: SurvivorData = state.data
 	var monster_entity: EntityPlaceholder = entities[_attack_target_id]
 	var monster_data: MonsterData = monster_entity.monster_data
@@ -442,6 +444,7 @@ func _apply_monster_wound(monster_id: String) -> void:
 
 func _on_all_cards_resolved() -> void:
 	_attack_target_id = ""
+	_attack_survivor_id = ""
 	_finish_attack()
 
 
