@@ -3,6 +3,7 @@ extends Node
 ## Manages player turn phase, survivor selection, and action coordination.
 
 signal all_survivors_complete()
+signal simulation_log_updated(lines: Array)
 
 const SURVIVOR_ACTION_MENU_SCENE := preload("res://scenes/game/ui/survivor_action_menu.tscn")
 
@@ -82,6 +83,71 @@ func reset_for_new_turn() -> void:
 	if active_survivor_id != "":
 		deselect_survivor()
 
+
+
+func simulate_all_survivors() -> void:
+	var log_lines: Array = []
+
+	for entity_id in survivor_states:
+		var state = survivor_states[entity_id]
+
+		# Skip survivors whose turn is already complete (knocked down, already acted)
+		if state.is_turn_complete:
+			continue
+
+		var entity: EntityPlaceholder = state.entity_node
+		var survivor_grid_pos := grid.world_to_grid(entity.position)
+
+		# Find nearest monster by Manhattan distance
+		var nearest_monster_id := ""
+		var nearest_dist := 999999
+		for other_id in entities:
+			var other: EntityPlaceholder = entities[other_id]
+			if other.entity_type != EntityPlaceholder.EntityType.MONSTER:
+				continue
+			var monster_grid_pos := grid.world_to_grid(other.position)
+			var dist := (abs(survivor_grid_pos.x - monster_grid_pos.x)
+					+ abs(survivor_grid_pos.y - monster_grid_pos.y))
+			if dist < nearest_dist:
+				nearest_dist = dist
+				nearest_monster_id = other_id
+
+		# Move toward nearest monster if one exists
+		if nearest_monster_id != "":
+			var monster: EntityPlaceholder = entities[nearest_monster_id]
+			var monster_grid_pos := grid.world_to_grid(monster.position)
+
+			var blocking_check := func(tile: Vector2i) -> bool:
+				return _is_tile_blocked(tile, entity_id)
+
+			var valid_tiles := MovementCalculator.calculate_valid_tiles(
+				grid, survivor_grid_pos, state.data.movement_range, blocking_check
+			)
+
+			# Pick valid tile closest to monster
+			var best_tile := survivor_grid_pos
+			var best_tile_dist := nearest_dist
+			for tile in valid_tiles:
+				var d := abs(tile.x - monster_grid_pos.x) + abs(tile.y - monster_grid_pos.y)
+				if d < best_tile_dist:
+					best_tile_dist = d
+					best_tile = tile
+
+			# Move entity instantly (no tween for simulation)
+			if best_tile != survivor_grid_pos:
+				entity.position = grid.grid_to_world(best_tile.x, best_tile.y)
+
+			log_lines.append("[%s] moves toward [%s], attacks (unresolved)" % [entity_id, nearest_monster_id])
+		else:
+			log_lines.append("[%s] has no target" % entity_id)
+
+		# Mark as fully acted
+		state.has_moved = true
+		state.has_activated = true
+		_complete_survivor_turn(entity_id)
+
+	if log_lines.size() > 0:
+		simulation_log_updated.emit(log_lines)
 
 func on_entity_clicked(entity_id: String) -> void:
 	# Ignore during transitions (e.g. movement animation)
