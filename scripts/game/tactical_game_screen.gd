@@ -284,6 +284,26 @@ func _initialize_monster_deck(monster_id: String) -> void:
 
 	monster_ai.initialize_monster_deck(monster_id, deck_config)
 
+	# Initialize hit location deck on the monster's data
+	var monster_entity: EntityPlaceholder = entities[monster_id]
+	if monster_entity.monster_data:
+		monster_entity.monster_data.hit_location_deck = _create_basic_hit_location_deck()
+
 	# Update UI with initial deck count
 	var deck: MonsterDeck = monster_ai.monster_decks[monster_id]
 	monster_deck_ui.update_deck_count(monster_id, deck.get_draw_pile_count())
+
+
+func _create_basic_hit_location_deck() -> HitLocationDeck:
+	var deck := HitLocationDeck.new()
+	var card_names: Array[String] = [
+		"Head", "Head",
+		"Torso", "Torso", "Torso",
+		"Arms", "Arms",
+		"Waist",
+		"Legs", "Legs"
+	]
+	for card_name in card_names:
+		deck.draw_pile.append(HitLocationCard.new(card_name))
+	deck.draw_pile.shuffle()
+	return deck
