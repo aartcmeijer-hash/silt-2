@@ -4,6 +4,10 @@ extends Resource
 
 @export var movement_range: int = 5
 @export var evasion: int = 5
+@export var accuracy: int = 0
+@export var speed: int = 0
+@export var strength: int = 0
+@export var luck: int = 0
 
 var is_knocked_down: bool = false
 var body_part_wounds: Dictionary = {
