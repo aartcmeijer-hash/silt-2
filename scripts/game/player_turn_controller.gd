@@ -145,7 +145,40 @@ func simulate_all_survivors() -> void:
 			if best_tile != survivor_grid_pos:
 				entity.position = grid.grid_to_world(best_tile.x, best_tile.y)
 
-			log_lines.append("[%s] moves toward [%s], attacks (unresolved)" % [entity_id, nearest_monster_id])
+			log_lines.append("[%s] moves toward [%s]" % [entity_id, nearest_monster_id])
+
+			# Attack if in range and monster still alive
+			if entities.has(nearest_monster_id) and best_tile_dist <= _fists.range:
+				var monster_entity: EntityPlaceholder = entities[nearest_monster_id]
+				var monster_data: MonsterData = monster_entity.monster_data
+				var survivor_data: SurvivorData = state.data
+				var hit_result: Dictionary = AttackResolver.resolve_hit_roll(_fists, survivor_data)
+				var hits: int = hit_result.hits
+				log_lines.append("[%s] attacks [%s] -> %d hit(s)" % [entity_id, nearest_monster_id, hits])
+				if hits > 0 and monster_data and monster_data.hit_location_deck:
+					var monster_alive: bool = true
+					for i in range(hits):
+						if not monster_alive:
+							break
+						var card: HitLocationCard = monster_data.hit_location_deck.draw_card()
+						if not card:
+							break
+						var wound_result: Dictionary = AttackResolver.resolve_wound_roll(_fists, survivor_data, monster_data)
+						if wound_result.is_wound:
+							var suffix: String = " (CRIT)" if wound_result.is_crit else ""
+							log_lines.append("  %s: %s -> wound%s" % [entity_id, card.card_name, suffix])
+							_apply_monster_wound(nearest_monster_id)
+							if not entities.has(nearest_monster_id):
+								monster_alive = false
+						else:
+							log_lines.append("  %s: %s -> no wound" % [entity_id, card.card_name])
+						monster_data.hit_location_deck.discard_card(card)
+						if monster_ai and monster_ai.deck_ui and monster_alive:
+							monster_ai.deck_ui.update_hit_location_deck(
+								nearest_monster_id,
+								monster_data.hit_location_deck.draw_pile.size(),
+								monster_data.hit_location_deck.discard_pile.size()
+							)
 		else:
 			log_lines.append("[%s] has no target" % entity_id)
 
@@ -427,6 +460,15 @@ func _on_hit_location_card_chosen(card: HitLocationCard) -> void:
 	simulation_log_updated.emit([log_line])
 	monster_data.hit_location_deck.discard_card(card)
 
+	# Update hit location deck UI
+	if monster_ai and monster_ai.deck_ui:
+		var hit_deck: HitLocationDeck = monster_data.hit_location_deck
+		monster_ai.deck_ui.update_hit_location_deck(
+			_attack_target_id,
+			hit_deck.draw_pile.size(),
+			hit_deck.discard_pile.size()
+		)
+
 
 func _apply_monster_wound(monster_id: String) -> void:
 	if not monster_ai or not monster_ai.monster_decks.has(monster_id):
@@ -434,6 +476,11 @@ func _apply_monster_wound(monster_id: String) -> void:
 
 	var deck: MonsterDeck = monster_ai.monster_decks[monster_id]
 	var is_dead: bool = deck.apply_wound()
+
+	# Update wound and deck UI
+	if monster_ai and monster_ai.deck_ui:
+		monster_ai.deck_ui.update_wound_count(monster_id, deck.wound_stack.size())
+		monster_ai.deck_ui.update_deck_count(monster_id, deck.get_draw_pile_count())
 
 	if is_dead:
 		simulation_log_updated.emit(["[%s] SLAIN!" % monster_id])

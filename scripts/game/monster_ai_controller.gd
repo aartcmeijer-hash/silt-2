@@ -293,6 +293,17 @@ func _execute_attack_action(monster: EntityPlaceholder, card: MonsterActionCard,
 		push_warning("MonsterAIController: target %s has no SurvivorData" % target_id)
 		return
 
+	# Range check
+	var monster_grid_pos: Vector2i = grid.world_to_grid(monster.global_position)
+	var target_grid_pos: Vector2i = grid.world_to_grid(target.global_position)
+	var dist: int = abs(monster_grid_pos.x - target_grid_pos.x) + abs(monster_grid_pos.y - target_grid_pos.y)
+	if dist > card.attack_range:
+		_attack_log.clear()
+		_log("%s tries to attack %s but is out of range (%d > %d)" % [
+			monster.entity_label, target_id, dist, card.attack_range])
+		attack_log_updated.emit(_attack_log.duplicate())
+		return
+
 	var monster_data: MonsterData = monster.monster_data
 	var accuracy: int = monster_data.accuracy if monster_data else 0
 

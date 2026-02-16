@@ -19,6 +19,7 @@ enum ActionType {
 @export var targeting_type: TargetingType = TargetingType.RANDOM_SURVIVOR
 @export var action_type: ActionType = ActionType.MOVE_TOWARDS
 @export var max_distance: int = 6
+@export var attack_range: int = 1
 @export var dice_count: int = 1
 @export var damage: int = 1
 @export_multiline var display_text: String = ""

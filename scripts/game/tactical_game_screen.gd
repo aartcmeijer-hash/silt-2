@@ -293,6 +293,8 @@ func _initialize_monster_deck(monster_id: String) -> void:
 	# Update UI with initial deck count
 	var deck: MonsterDeck = monster_ai.monster_decks[monster_id]
 	monster_deck_ui.update_deck_count(monster_id, deck.get_draw_pile_count())
+	monster_deck_ui.update_hit_location_deck(monster_id, 10, 0)
+	monster_deck_ui.update_wound_count(monster_id, 0)
 
 
 func _create_basic_hit_location_deck() -> HitLocationDeck:

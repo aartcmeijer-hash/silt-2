@@ -24,6 +24,16 @@ func update_discard_top(monster_id: String, card: MonsterActionCard) -> void:
 		monster_rows[monster_id].update_discard_top(card)
 
 
+func update_wound_count(monster_id: String, count: int) -> void:
+	if monster_rows.has(monster_id):
+		monster_rows[monster_id].update_wound_count(count)
+
+
+func update_hit_location_deck(monster_id: String, draw_count: int, discard_count: int) -> void:
+	if monster_rows.has(monster_id):
+		monster_rows[monster_id].update_hit_location_deck(draw_count, discard_count)
+
+
 func show_active_card(monster_id: String, card: MonsterActionCard) -> void:
 	if monster_rows.has(monster_id):
 		monster_rows[monster_id].show_active_card(card)
@@ -110,6 +120,8 @@ class MonsterDeckRow extends HBoxContainer:
 	var discard_display: Control
 	var label: Label
 	var deck_count_label: Label
+	var wound_count_label: Label
+	var hit_loc_label: Label
 
 	func _init(id: String, display_label: String) -> void:
 		monster_id = id
@@ -156,6 +168,36 @@ class MonsterDeckRow extends HBoxContainer:
 		discard_display.clear()
 		discard_container.add_child(discard_display)
 
+		# Wound stack area
+		var wound_container := VBoxContainer.new()
+		wound_container.custom_minimum_size.x = 80
+		add_child(wound_container)
+
+		var wound_header := Label.new()
+		wound_header.text = "Wounds"
+		wound_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		wound_container.add_child(wound_header)
+
+		wound_count_label = Label.new()
+		wound_count_label.text = "0"
+		wound_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		wound_container.add_child(wound_count_label)
+
+		# Hit location deck area
+		var hit_loc_container := VBoxContainer.new()
+		hit_loc_container.custom_minimum_size.x = 100
+		add_child(hit_loc_container)
+
+		var hit_loc_header := Label.new()
+		hit_loc_header.text = "Hit Loc"
+		hit_loc_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hit_loc_container.add_child(hit_loc_header)
+
+		hit_loc_label = Label.new()
+		hit_loc_label.text = "10 / 0"
+		hit_loc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hit_loc_container.add_child(hit_loc_label)
+
 
 	func update_deck_count(count: int) -> void:
 		deck_count_label.text = "Deck: %d" % count
@@ -180,6 +222,14 @@ class MonsterDeckRow extends HBoxContainer:
 
 	func clear_active_card() -> void:
 		active_card_display.clear()
+
+
+	func update_wound_count(count: int) -> void:
+		wound_count_label.text = str(count)
+
+
+	func update_hit_location_deck(draw_count: int, discard_count: int) -> void:
+		hit_loc_label.text = "%d / %d" % [draw_count, discard_count]
 
 
 	func set_highlighted(enabled: bool) -> void:
