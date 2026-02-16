@@ -6,6 +6,7 @@ signal all_survivors_complete()
 signal simulation_log_updated(lines: Array)
 
 const SURVIVOR_ACTION_MENU_SCENE := preload("res://scenes/game/ui/survivor_action_menu.tscn")
+const HIT_LOCATION_CARD_PANEL_SCENE := preload("res://scenes/game/ui/hit_location_card_panel.tscn")
 
 var grid: IsometricGrid
 var entities: Dictionary
@@ -20,6 +21,10 @@ var _is_transitioning: bool = false: set = _set_transitioning
 
 var action_menu: SurvivorActionMenu = null
 var movement_mode: InteractiveMovementMode = null
+var attack_mode: InteractiveAttackMode = null
+var _attack_target_id: String = ""
+var monster_ai = null  # Set by TacticalGameScreen after construction
+var _fists: WeaponProfile = WeaponProfile.new(2, 8, 0, 1)
 
 # Selection visuals
 var _selection_highlight: MeshInstance3D = null
@@ -331,18 +336,127 @@ func _on_attack_pressed() -> void:
 		return
 
 	var state = survivor_states[active_survivor_id]
+	var entity: EntityPlaceholder = state.entity_node
+	var attacker_pos: Vector2i = grid.world_to_grid(entity.position)
 
-	# No-op for now
-	print("Attack pressed for ", active_survivor_id)
+	if action_menu:
+		action_menu.hide()
 
-	# Update state
+	attack_mode = InteractiveAttackMode.new()
+	add_child(attack_mode)
+	attack_mode.target_selected.connect(_on_attack_target_selected)
+	attack_mode.attack_cancelled.connect(_on_attack_cancelled)
+	attack_mode.start(grid, camera, subviewport, entities, attacker_pos, _fists.range)
+
+
+func _on_attack_cancelled() -> void:
+	if action_menu:
+		action_menu.show()
+	if attack_mode:
+		attack_mode.queue_free()
+		attack_mode = null
+
+
+func _on_attack_target_selected(monster_id: String) -> void:
+	if attack_mode:
+		attack_mode.queue_free()
+		attack_mode = null
+
+	_attack_target_id = monster_id
+	var state = survivor_states[active_survivor_id]
+	var survivor_data: SurvivorData = state.data
+
+	# Hit rolls
+	var hit_result: Dictionary = AttackResolver.resolve_hit_roll(_fists, survivor_data)
+	var hits: int = hit_result.hits
+	var roll_details: Array = hit_result.roll_details
+	var rolls_str: String = ", ".join(roll_details.map(func(d: Dictionary) -> String: return str(d.roll)))
+	simulation_log_updated.emit(["[%s] attacks [%s] -- rolls: %s -> %d hit(s)" % [
+		active_survivor_id, monster_id, rolls_str, hits]])
+
+	if hits == 0:
+		simulation_log_updated.emit(["[%s] -- miss!" % active_survivor_id])
+		_finish_attack()
+		return
+
+	# Draw hit location cards
+	var monster_entity: EntityPlaceholder = entities[monster_id]
+	var monster_data: MonsterData = monster_entity.monster_data
+	if not monster_data or not monster_data.hit_location_deck:
+		push_error("Monster %s has no hit_location_deck" % monster_id)
+		_finish_attack()
+		return
+
+	var drawn_cards: Array[HitLocationCard] = []
+	for i in range(hits):
+		var card: HitLocationCard = monster_data.hit_location_deck.draw_card()
+		if card:
+			drawn_cards.append(card)
+
+	# Show panel for wound ordering
+	var panel: HitLocationCardPanel = HIT_LOCATION_CARD_PANEL_SCENE.instantiate()
+	add_child(panel)
+	panel.setup(drawn_cards)
+	panel.card_chosen.connect(_on_hit_location_card_chosen)
+	panel.all_cards_resolved.connect(_on_all_cards_resolved)
+
+
+func _on_hit_location_card_chosen(card: HitLocationCard) -> void:
+	var state = survivor_states[active_survivor_id]
+	var survivor_data: SurvivorData = state.data
+	var monster_entity: EntityPlaceholder = entities[_attack_target_id]
+	var monster_data: MonsterData = monster_entity.monster_data
+
+	var wound_result: Dictionary = AttackResolver.resolve_wound_roll(_fists, survivor_data, monster_data)
+
+	var log_line: String
+	if not wound_result.is_wound:
+		log_line = "  %s -> %s: roll %d -- no wound (toughness %d)" % [
+			active_survivor_id, card.card_name, wound_result.total, monster_data.toughness]
+	elif wound_result.is_crit:
+		log_line = "  %s -> %s: roll %d -- CRIT WOUND!" % [
+			active_survivor_id, card.card_name, wound_result.roll]
+		_apply_monster_wound(_attack_target_id)
+	else:
+		log_line = "  %s -> %s: roll %d -- wound!" % [
+			active_survivor_id, card.card_name, wound_result.total]
+		_apply_monster_wound(_attack_target_id)
+
+	simulation_log_updated.emit([log_line])
+	monster_data.hit_location_deck.discard_card(card)
+
+
+func _apply_monster_wound(monster_id: String) -> void:
+	if not monster_ai or not monster_ai.monster_decks.has(monster_id):
+		return
+
+	var deck: MonsterDeck = monster_ai.monster_decks[monster_id]
+	var is_dead: bool = deck.apply_wound()
+
+	if is_dead:
+		simulation_log_updated.emit(["[%s] SLAIN!" % monster_id])
+		var entity: EntityPlaceholder = entities[monster_id]
+		entity.queue_free()
+		entities.erase(monster_id)
+
+
+func _on_all_cards_resolved() -> void:
+	_attack_target_id = ""
+	_finish_attack()
+
+
+func _finish_attack() -> void:
+	if active_survivor_id == "":
+		return
+	var state = survivor_states[active_survivor_id]
 	state.has_activated = true
 
-	# Update button states
 	if action_menu:
+		var entity: EntityPlaceholder = state.entity_node
+		action_menu.setup(camera, entity.position, subviewport_container)
 		action_menu.update_button_states(state.has_moved, state.has_activated)
+		action_menu.show()
 
-	# Check if turn complete
 	_check_auto_complete_turn(active_survivor_id)
 
 

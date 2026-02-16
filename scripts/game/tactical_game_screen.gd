@@ -64,6 +64,7 @@ func _ready() -> void:
 	player_turn_controller.setup(grid, entities, turn_state, camera)
 	player_turn_controller.all_survivors_complete.connect(_on_all_survivors_complete)
 	player_turn_controller.simulation_log_updated.connect(_on_simulation_log_updated)
+	player_turn_controller.monster_ai = monster_ai
 
 	_update_ui()
 
