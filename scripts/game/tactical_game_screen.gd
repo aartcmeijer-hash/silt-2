@@ -37,11 +37,12 @@ func _ready() -> void:
 	monster_ai.turn_completed.connect(_on_monster_ai_completed)
 	_attack_log_label = RichTextLabel.new()
 	_attack_log_label.name = "AttackLog"
-	_attack_log_label.custom_minimum_size = Vector2(300, 120)
+	_attack_log_label.custom_minimum_size = Vector2(400, 150)
 	_attack_log_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_attack_log_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_attack_log_label.add_theme_color_override("default_color", Color.WHITE)
 	_attack_log_label.scroll_active = false
-	tactical_ui.add_child(_attack_log_label)
+	add_child(_attack_log_label)
 	monster_ai.attack_log_updated.connect(_on_attack_log_updated)
 	monster_ai.deck_ui = monster_deck_ui
 
@@ -219,6 +220,12 @@ func _on_turn_changed(new_turn: TurnState.Turn) -> void:
 func _on_attack_log_updated(lines: Array) -> void:
 	if _attack_log_label:
 		_attack_log_label.text = "\n".join(lines)
+
+func append_log(line: String) -> void:
+	if _attack_log_label:
+		if _attack_log_label.text != "":
+			_attack_log_label.text += "\n"
+		_attack_log_label.text += line
 
 
 func _update_ui() -> void:
