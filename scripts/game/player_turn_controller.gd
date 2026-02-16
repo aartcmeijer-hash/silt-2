@@ -130,7 +130,7 @@ func simulate_all_survivors() -> void:
 			var best_tile := survivor_grid_pos
 			var best_tile_dist := nearest_dist + 1
 			for tile in valid_tiles:
-				var d := abs(tile.x - monster_grid_pos.x) + abs(tile.y - monster_grid_pos.y)
+				var d: int = abs(tile.x - monster_grid_pos.x) + abs(tile.y - monster_grid_pos.y)
 				if d < best_tile_dist:
 					best_tile_dist = d
 					best_tile = tile
