@@ -1,6 +1,14 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://c8y7qvh5xjw8v"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c8y7qvh5xjw8v"]
+
+[ext_resource type="Shader" path="res://resources/shaders/floor_tile.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://cg6gb1gap5xln" path="res://resources/textures/floor_albedo.png" id="2_albedo"]
+[ext_resource type="Texture2D" uid="uid://dmficcd6n2yt3" path="res://resources/textures/floor_normal.png" id="3_normal"]
+[ext_resource type="Texture2D" uid="uid://vvv6jrjahqw0" path="res://resources/textures/floor_roughness.png" id="4_roughness"]
 
 [resource]
-albedo_color = Color(0.5, 0.55, 0.65, 1)
-metallic = 0.0
-roughness = 0.8
+shader = ExtResource("1_shader")
+shader_parameter/albedo_texture = ExtResource("2_albedo")
+shader_parameter/normal_texture = ExtResource("3_normal")
+shader_parameter/roughness_texture = ExtResource("4_roughness")
+shader_parameter/uv_scale = 0.01
+shader_parameter/normal_scale = 1.0
