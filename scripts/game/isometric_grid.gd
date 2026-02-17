@@ -2,8 +2,8 @@ class_name IsometricGrid
 extends Node3D
 ## Renders a 20x20 isometric grid using GridMap and provides coordinate conversion.
 
-@export var grid_width: int = 20
-@export var grid_height: int = 20
+@export var grid_width: int = 16
+@export var grid_height: int = 16
 @export var tile_size: float = 32.0
 
 @onready var grid_map: GridMap = $GridMap
